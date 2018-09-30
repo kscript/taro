@@ -1,0 +1,13 @@
+var store = {
+  token: "a61740a9245f9d9591913cc01ef7e1f9",
+  appKey: "9877e7b70f30866c74e409a5ea60373d"
+}
+function LocalStorage(){
+}
+LocalStorage.prototype = {
+  constructor: LocalStorage,
+  getItem: function (key){
+    return store[key] || null;
+  }
+}
+module.exports = new LocalStorage();

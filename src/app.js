@@ -4,7 +4,7 @@ import { Provider } from '@tarojs/redux'
 
 import Index from './pages/index'
 
-import configStore from './store'
+import configStore from './redux'
 
 if (process.env.TARO_ENV === 'weapp') {
   require('taro-ui/dist/weapp/css/index.css')

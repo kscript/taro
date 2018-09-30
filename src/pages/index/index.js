@@ -2,29 +2,27 @@ import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { AtInput, AtForm, AtButton } from 'taro-ui'
 import { connect } from '@tarojs/redux'
-// import { add, minus, asyncAdd } from '../../actions/counter'
-import { account, token } from '../../actions/sdk'
-import { nim } from '../../utils/'
+import { account, token , login} from '../../redux/actions/sdk'
+import {nim} from '../../utils'
 
 import './index.scss'
 
 @connect(({ sdk }) => ({
   sdk
 }), (dispatch) => ({
-  account (val) {
-    dispatch(account(val))
-  },
-  token (val) {
-    dispatch(token(val))
+  login (option) {
+    return dispatch(login(option));
   }
 }))
 export default class Index extends Component {
   constructor() {
     super(...arguments)
-    console.log(this, nim)
     this.state = {
-      account: '',
-      password: ''
+      test: 1,
+      loginForm: {
+        account: '',
+        password: ''
+      }
     }
   }
   config = {
@@ -32,7 +30,7 @@ export default class Index extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    console.log(this, this.props, nextProps)
+    // console.log(this, this.props, nextProps)
   }
 
   componentWillUnmount () { }
@@ -40,23 +38,23 @@ export default class Index extends Component {
   componentDidShow () { }
 
   componentDidHide () { }
-  handleInput(value) {
-    this.setState({
-      account: value
-    })
-  }
-  onPasswordChange(value) {
-    this.setState({
-      password: value
-    })
-  }
   handleInput (stateName, value) {
-    this.setState({
-      [stateName]: value
-    })
+    this.setState((prevState, props) => {
+      let {...loginForm} = prevState.loginForm;
+      loginForm[stateName] = value;
+      return {
+        loginForm
+      }
+    });
   }
   onSubmit(){
-    console.log(this, this.state)
+    this.props.login({
+      url: 'login',
+      method: "post",
+      data: this.state.loginForm
+    }).then(data => {
+      console.log(data)
+    })
   }
   render () {
     return (
@@ -66,18 +64,18 @@ export default class Index extends Component {
               name="account"
               type='text'
               placeholder='请输入账号'
-              value={this.state.account}
+              value={this.state.loginForm.account}
               onChange={this.handleInput.bind(this, 'account')}
             />
             <AtInput
               name="password"
               type='text'
               placeholder='请输入密码'
-              value={this.state.password}
+              value={this.state.loginForm.password}
               onChange={this.handleInput.bind(this, 'password')}
             />
           </AtForm>
-          <View class="handler">
+          <View className="handler">
             <AtButton
             type='primary'
             size='small'
