@@ -1,3 +1,5 @@
+import {store} from '../redux'
+
 let nimInstance;
 export let SDK;
 if (process.env.TARO_ENV === 'weapp') {
@@ -5,35 +7,73 @@ if (process.env.TARO_ENV === 'weapp') {
 } else if (process.env.TARO_ENV === 'h5') {
     SDK = require('../../static/sdk/NIM_Web_SDK_v5.6.0.js');
 }
-
-export let nim = function(option){
+export const NIM = function(option){
     option = option || {};
+    let State = store.getState();
+    let account = option.account || State.sdk.account;
+    let appKey = State.sdk.appKey;
+    let token = State.sdk.token;
     return new Promise((resolve, reject) => {
         if(nimInstance){
             resolve(nimInstance)
-        }else if(option.account){
-            nimInstance = SDK.NIM.getInstance({
-                appKey: "9877e7b70f30866c74e409a5ea60373d",
-                token: "9d8886c048fbf815848becb1e07f5232", 
-                account: option.account,
-                onconnect: () => {
-                    resolve(nimInstance)
-                },
-                ondisconnect: err => {
-                    reject(err)
-                },
-                onerror: err => {
-                    reject(err)
-                }
-            });
+        }else if(account){
+            let config = {
+                token,
+                appKey,
+                account
+            };
+            config.db = option.db || true;
+            config.onconnect = option.onconnect || function () {
+                resolve(nimInstance);
+            };
+            config.ondisconnect = option.onconnect || function (err) {
+                reject(err);
+            },
+            config.onerror = option.onconnect || function (err) {
+                reject(err);
+            };
+            nimInstance = SDK.NIM.getInstance(config);
         } else {
-            reject('option.account属性不能为空')
+            reject('account不存在');
         }
     })
 
 }
 
+export let SESSION = {
+    getLocalSessions (option = {}) {
+        return new Promise((resolve, reject) => {
+            NIM().then(nim => {
+                let config = {
+                    limit: option.limit || 100,
+                    done: (err, data) => {
+                        if(err){
+                            reject(err);
+                        }else {
+                            resolve(data);
+                        }
+                    }
+                }
+                nim.getLocalSessions(config);
+            })
+        })
+    },
+    getSessionsList(list){
+        return new Promise((resolve, reject) => {
+            NIM().then(nim => {
+                nim.setOptions({
+                    onsessions: data => {
+                        resolve(nim.mergeSessions(list, data));
+                    }
+                });
+            })
+        })
+    },
+};
+
+
+
 export default {
     SDK,
-    nim
+    NIM
 }

@@ -4,7 +4,8 @@ import { Provider } from '@tarojs/redux'
 
 import Index from './pages/index'
 
-import configStore from './redux'
+// import configStore from './redux'
+import {store} from './redux'
 
 if (process.env.TARO_ENV === 'weapp') {
   require('taro-ui/dist/weapp/css/index.css')
@@ -14,13 +15,15 @@ if (process.env.TARO_ENV === 'weapp') {
 
 import './app.scss'
 
-const store = configStore()
+// const store = configStore()
 
 class App extends Component {
 
   config = {
     pages: [
-      'pages/index/index'
+      'pages/index/index',
+      'pages/login/index',
+      'pages/message/index'
     ],
     window: {
       backgroundTextStyle: 'light',
