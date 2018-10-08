@@ -1,7 +1,6 @@
 import * as config from '../../constants';
 import {NIM, SESSION} from '../../utils'
 import Taro from '@tarojs/taro';
-import { resolve } from 'dns';
 
 export const account = val => {
     return {
@@ -57,7 +56,7 @@ export function getSessionList (option = {}) {
 export function onmessage (option = {}) {
   option.eventBus = option.eventBus || function(){};
   let data = option.data || {};
-  let events = ['onroamingmsgs','onofflinemsgs', 'onmsg'];
+  let events = option.events || ['onroamingmsgs','onofflinemsgs', 'onmsg', 'onsessions', 'onusers'];
   events.forEach(item => {
     if(!data[item]){
       data[item] = function(){
@@ -69,6 +68,7 @@ export function onmessage (option = {}) {
   });
   return dispatch => {
     NIM().then(nim => {
+      console.log([nim,data])
       nim.setOptions(data);
     })
   }

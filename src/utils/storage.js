@@ -4,7 +4,8 @@ if (process.env.TARO_ENV === 'weapp') {
   Storage = {
     getItem: wx.getStorageSync,
     removeItem: wx.removeStorageSync,
-    setItem: wx.setStorageSync
+    setItem: wx.setStorageSync,
+    clear: wx.clearStorageSync
   }
 }
 export const loadState = (obj, pref = '') => {

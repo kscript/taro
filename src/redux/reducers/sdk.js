@@ -1,4 +1,5 @@
 import {loadState, saveState} from '../../utils/storage.js'
+
 const INITIAL_STATE = loadState({
   account: '',
   token: '',

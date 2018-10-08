@@ -2,6 +2,7 @@ let mockData = require('./index.js')();
 module.exports = (req, res, next) => {
   let url = req.url.slice(1);
   let data = mockData[url];
+  
   let method = req.method.toLowerCase();
   let result = {};
   let headConfig = {
@@ -11,6 +12,7 @@ module.exports = (req, res, next) => {
     'Access-Control-Allow-Credentials': true,
     'Content-Type': 'text/html;charset=utf-8'
   }
+
   // 验证数据
   if(data){
     // 验证方法
@@ -30,6 +32,9 @@ module.exports = (req, res, next) => {
       code: 404,
       message: '请求地址不存在'
     }
+  }
+  if(data.format){
+    result = data.format(method, req.body, result);
   }
   res.end(JSON.stringify(result));
 }

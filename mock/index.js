@@ -22,6 +22,12 @@ return {
   // 登录
   // 参数: account password
   login: {
+    format: function(method, data, result){
+      if(result.data && data.username === 'test2222'){
+        result.data.token = localStorage.getItem('token2')
+      }
+      return result;
+    },
     post: Mock.mock({
       code: 200,
       message: 'ok',
