@@ -5,12 +5,16 @@ import { Provider } from '@tarojs/redux'
 import Index from './pages/index'
 
 // import configStore from './redux'
-import {store} from './redux'
+import {store, saveState} from './redux'
 
 if (process.env.TARO_ENV === 'weapp') {
   require('taro-ui/dist/weapp/css/index.css')
 } else if (process.env.TARO_ENV === 'h5') {
   require('taro-ui/dist/h5/css/index.css')
+  // window.onbeforeunload = (e) => {
+  //   const state = store.getState();
+  //   saveState(state);
+  // }
 }
 
 import './app.scss'

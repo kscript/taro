@@ -1,43 +1,23 @@
-
-export const setLocal = function(key, data) {
-  // if (data instanceof Object) {
-  //     data = JSON.stringify(data);
-  // }
-  wx.setStorageSync(key, data);
-}
-export const getLocal = function(key) {
-  let data = localStorage.getItem(key);
-  try {
-      return JSON.parse(data);
-  } catch (e) {
-      return data;
-  }
-}
-export const getStore = function (state, key){
-  return state[key] === undefined || isEmpty(state[key]) ? getLocal(key) : state[key];
-}
-export const setStore = function (state, key, val){
-  state[key] = val;
-  setLocal(key, val);
-  return state;
-}
-
-export const isEmpty = function (obj){
-  let key
-  let empty = true
-  if (obj instanceof Object) {
-    for (key in obj) {
-      if (empty && obj.hasOwnProperty(key)) {
-        empty = false
-      }
+export const loadState = (obj, pref = '') => {
+  let result = {};
+  for(let key in obj){
+    let state = localStorage.getItem(pref + key);
+    try{
+      result[key] = JSON.parse(state);
+    }catch(e){
+      result[key] = state || obj[key];
     }
   }
-  return empty
+  return result;
 }
+export const saveState = (key, val, pref = '') => {
+  try {
+    localStorage.setItem(pref + key, val);
+  } catch (err) {
+    // ...错误处理
+  }
+};
 export default {
-  isEmpty,
-  getLocal,
-  setLocal,
-  getStore,
-  setStore
+  loadState,
+  saveState
 }

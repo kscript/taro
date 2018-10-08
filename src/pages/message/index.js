@@ -25,13 +25,24 @@ export default class Message extends Component {
       roamingList: [], // 漫游会话临时列表
     };
     this.state = {
-      sessionList: []
     }
   }
   config = {
     navigationBarTitleText: '消息'
   }
-
+  dataMapState(key){
+    let maps = {};
+    if(key instanceof Array){
+      key.forEach(item => {
+        maps[item] = this.$data[item]
+      })
+    } else {
+      maps = {
+        [key]: this.$data[key]
+      }
+    }
+    this.setState(maps);
+  }
   componentWillReceiveProps (nextProps) {
     // console.log(this, this.props, nextProps)
   }
@@ -59,11 +70,8 @@ export default class Message extends Component {
       this.$data.sessionList.sort((a, b) => {
         return b.timetag - a.timetag
       });
-      this.setState((prevState, props) => {
-        return {
-          sessionList: this.$data.sessionList
-        }
-      })
+      
+      this.dataMapState('sessionList');
     }
   }
   render () {
@@ -77,6 +85,7 @@ export default class Message extends Component {
                 return <AtListItem
                   title={item.to}
                   note={item.msgs.slice(-1)[0].text}
+                  key="index"
                   // extraText='详细信息'
                   thumb='http://img12.360buyimg.com/jdphoto/s72x72_jfs/t10660/330/203667368/1672/801735d7/59c85643N31e68303.png'
                 />
