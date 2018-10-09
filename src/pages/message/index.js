@@ -2,7 +2,7 @@ import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { AtList, AtListItem} from "taro-ui"
 import { connect } from '@tarojs/redux'
-import { getSessionList, onmessage} from '../../redux/actions/sdk'
+import { getSessionList, onmessage, detail} from '../../redux/actions/sdk'
 
 import './index.scss'
 
@@ -11,6 +11,9 @@ import './index.scss'
 }), (dispatch) => ({
   onmessage: option => {
     return dispatch(onmessage(option));
+  },
+  detail: option => {
+    return dispatch(detail(option));
   },
   getSessionList: val => {
     return dispatch(getSessionList(val));
@@ -21,6 +24,7 @@ export default class Message extends Component {
   constructor() {
     super(...arguments)
     this.$data = {
+      detail: {},
       sessions: {}, // 会话信息散列
       sessionList: [], // 会话信息数组
       roamingList: [], // 漫游会话临时数组
@@ -135,6 +139,7 @@ export default class Message extends Component {
     return sessionList;
   }
   itemClick(session){
+
     Taro.navigateTo({
       url: '/pages/message/detail?to=' + session.to
     });

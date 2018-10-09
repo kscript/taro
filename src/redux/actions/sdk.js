@@ -30,6 +30,13 @@ export const isLogin = val => {
       type: 'isLogin'
     }
 }
+export const detail = val => {
+  return {
+    val,
+    cache: false,
+    type: 'detail'
+  }
+}
 export const sessionList = val => {
     return {
       val,
@@ -38,11 +45,24 @@ export const sessionList = val => {
     }
 }
 
+
 // 异步的action
 export function login (option = {}) {
   return dispatch => {
     option.url = config.baseUrl + option.url;
-    return Taro.request(option).then(response => {
+    // return Taro.request(option).then(response => {
+    return new Promise(resolve => resolve()).then(data => {
+      return {
+        data: {
+          code: 200,
+          message: 'ok',
+          data: {
+            token: "e5a8573ad3f165423f66dea2a2f29237",
+            appKey: "9877e7b70f30866c74e409a5ea60373d"
+          }
+        }
+      }
+    }).then(response => {
       dispatch(account(option.data.account));
       dispatch(token(response.data.data.token));
       dispatch(appKey(response.data.data.appKey));
@@ -61,7 +81,7 @@ export function getSessionList (option = {}) {
 export function onmessage (option = {}) {
   option.eventBus = option.eventBus || function(){};
   let data = option.data || {};
-  let events = option.events || [];
+  let events = ['onroamingmsgs','onofflinemsgs', 'onmsg'];
   events.forEach(item => {
     if(!data[item]){
       data[item] = function(){

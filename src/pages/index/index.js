@@ -1,4 +1,3 @@
-
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { AtInput, AtForm, AtButton, AtToast } from 'taro-ui'
@@ -18,13 +17,17 @@ import './index.scss'
 export default class Login extends Component {
   constructor() {
     super(...arguments)
-    this.state = {
-      errMessage: '',
-      isOpened: false,
+    console.log(this)
+    this.$data = {
       loginForm: {
         account: '',
         password: ''
       }
+    }
+    this.state = {
+      errMessage: '',
+      isLogin: true,
+      isOpened: false
     }
   }
   config = {
@@ -32,40 +35,36 @@ export default class Login extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    // console.log(this, this.props, nextProps)
   }
 
   componentWillUnmount () { }
   componentWillMount () {
-    if(store.getState().sdk.isLogin){
-      this.handleInput('account', 'test1111');
-    } else {
+    let state = store.getState()
+    if(state.sdk.isLogin && state.sdk.account){
       Taro.navigateTo({
-        url: '/pages/login/index'
+          url: '/pages/message/index'
       });
+    } else {
+      this.setState({
+        isLogin: false
+      })
     }
 
   }
 
   componentDidShow () {
-    this.onSubmit();
+    // this.onSubmit();
   }
 
   componentDidHide () { }
   handleInput (stateName, value) {
-    this.setState((prevState, props) => {
-      let {...loginForm} = prevState.loginForm;
-      loginForm[stateName] = value;
-      return {
-        loginForm
-      }
-    });
+    this.$data.loginForm[stateName] = value;
   }
-  onSubmit(){
+  submitLogin(data){
     this.props.login({
       url: 'login',
       method: "post",
-      data: this.state.loginForm,
+      data: data,
       fail: err => {
         this.setState({
           isOpened: true,
@@ -77,6 +76,9 @@ export default class Login extends Component {
         url: '/pages/message/index'
       });
     })
+  }
+  onSubmit(){
+    this.submitLogin(this.$data.loginForm);
   }
   toastConfirm(){
     this.setState({
@@ -92,29 +94,35 @@ export default class Login extends Component {
         onConfirm={this.toastConfirm}
         text={this.state.errMessage}
       />
-          <AtForm className="loginFrom">
-            <AtInput
-              name="account"
-              type='text'
-              placeholder='请输入账号'
-              value={this.state.loginForm.account}
-              onChange={this.handleInput.bind(this, 'account')}
-            />
-            <AtInput
-              name="password"
-              type='text'
-              placeholder='请输入密码'
-              value={this.state.loginForm.password}
-              onChange={this.handleInput.bind(this, 'password')}
-            />
-          </AtForm>
-          <View className="handler">
-            <AtButton
-            type='primary'
-            size='small'
-            onClick={this.onSubmit.bind(this)}
-            >登录</AtButton>
+      {
+        !this.state.isLogin && (
+          <View>
+            <AtForm className="loginFrom" >
+              <AtInput
+                name="account"
+                type='text'
+                placeholder='请输入账号'
+                value={this.$data.loginForm.account}
+                onChange={this.handleInput.bind(this, 'account')}
+              />
+              <AtInput
+                name="password"
+                type='text'
+                placeholder='请输入密码'
+                value={this.$data.loginForm.password}
+                onChange={this.handleInput.bind(this, 'password')}
+              />
+            </AtForm>
+            <View className="handler">
+              <AtButton
+              type='primary'
+              size='small'
+              onClick={this.onSubmit.bind(this)}
+              >登录</AtButton>
+            </View>
           </View>
+        )
+      }
     </View>
     )
   }

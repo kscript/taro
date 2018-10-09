@@ -4,6 +4,7 @@ const INITIAL_STATE = loadState({
   account: '',
   token: '',
   appKey: '',
+  detail: {},
   sessionList: [],
   isLogin: 0
 })
