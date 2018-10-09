@@ -22,7 +22,6 @@ export const NIM = function(option){
                 appKey,
                 account
             };
-            config.db = option.db || true;
             config.onconnect = option.onconnect || function () {
                 resolve(nimInstance);
             };
@@ -32,7 +31,14 @@ export const NIM = function(option){
             config.onerror = option.onconnect || function (err) {
                 reject(err);
             };
+            config.db = process.env.TARO_ENV === 'weapp' ? false : option.db;
+            config['syncMsgReceipts'] = true;
+            config['needMsgReceipt'] = true;
+            config['syncSessionUnread'] = true;
+            config['syncRoamingMsgs'] = true;
+
             nimInstance = SDK.NIM.getInstance(config);
+            console.log(nimInstance);
         } else {
             reject('account不存在');
         }

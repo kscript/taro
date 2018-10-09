@@ -5,30 +5,35 @@ import Taro from '@tarojs/taro';
 export const account = val => {
     return {
       val,
+      cache: true,
       type: 'account'
     }
 }
 export const token = val => {
     return {
       val,
+      cache: true,
       type: 'token'
     }
 }
 export const appKey = val => {
     return {
       val,
+      cache: true,
       type: 'appKey'
     }
 }
 export const isLogin = val => {
     return {
       val,
+      cache: true,
       type: 'isLogin'
     }
 }
 export const sessionList = val => {
     return {
       val,
+      cache: true,
       type: 'sessionList'
     }
 }
@@ -56,7 +61,7 @@ export function getSessionList (option = {}) {
 export function onmessage (option = {}) {
   option.eventBus = option.eventBus || function(){};
   let data = option.data || {};
-  let events = option.events || ['onroamingmsgs','onofflinemsgs', 'onmsg', 'onsessions', 'onusers'];
+  let events = option.events || [];
   events.forEach(item => {
     if(!data[item]){
       data[item] = function(){
@@ -68,7 +73,6 @@ export function onmessage (option = {}) {
   });
   return dispatch => {
     NIM().then(nim => {
-      console.log([nim,data])
       nim.setOptions(data);
     })
   }

@@ -46,6 +46,9 @@ export default class Message extends Component {
   config = {
     navigationBarTitleText: '与 .... 对话中'
   }
+  componentWillMount () {
+    console.log(this);
+  }
   dataMapState(key){
     let maps = {};
     if(key instanceof Array){
@@ -59,6 +62,7 @@ export default class Message extends Component {
     }
     this.setState(maps);
   }
+
   gridClick(){
 
   }

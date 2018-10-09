@@ -23,7 +23,8 @@ return {
   // 参数: account password
   login: {
     format: function(method, data, result){
-      if(result.data && data.username === 'test2222'){
+      let account = data.account || data.username;
+      if(result.data && account === 'test2222'){
         result.data.token = localStorage.getItem('token2')
       }
       return result;

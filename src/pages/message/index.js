@@ -6,8 +6,8 @@ import { getSessionList, onmessage} from '../../redux/actions/sdk'
 
 import './index.scss'
 
-@connect(({ sdk }) => ({
-  sdk
+@connect(() => ({
+
 }), (dispatch) => ({
   onmessage: option => {
     return dispatch(onmessage(option));
@@ -52,6 +52,7 @@ export default class Message extends Component {
   componentWillMount () {
     console.log(this);
     this.props.onmessage({
+      events: ['onroamingmsgs','onofflinemsgs', 'onmsg', 'onsessions', 'onusers'],
       eventBus: (type, data) => {
         console.log(type, data);
         this[type] && this[type](data)
@@ -133,9 +134,9 @@ export default class Message extends Component {
     })
     return sessionList;
   }
-  itemClick(){
+  itemClick(session){
     Taro.navigateTo({
-      url: '/pages/message/detail'
+      url: '/pages/message/detail?to=' + session.to
     });
   }
   render () {
@@ -150,7 +151,7 @@ export default class Message extends Component {
                   title={item.to}
                   note={item.lastMsg.text}
                   key="index"
-                  onClick={this.itemClick}
+                  onClick={this.itemClick.bind(this, item)}
                   // extraText='详细信息'
                   thumb='http://img12.360buyimg.com/jdphoto/s72x72_jfs/t10660/330/203667368/1672/801735d7/59c85643N31e68303.png'
                 />

@@ -50,9 +50,8 @@ const config = {
   weapp: {
     compile: {
       exclude: [
-        'src/assets/sdk/NIM_Web_SDK_v5.6.0.js',
-        '../../static/sdk/NIM_Web_SDK_v5.6.0.js',
-        'src/assets/sdk/NIM_Web_SDK_v5.3.0.js'
+        'src/assets/sdk/NIM_Web_SDK_v5.3.0.js',
+        'src/assets/sdk/NIM_Web_SDK_v5.6.0.js'
       ]
     }
   },

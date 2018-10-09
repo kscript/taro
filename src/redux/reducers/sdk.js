@@ -9,7 +9,7 @@ const INITIAL_STATE = loadState({
 })
 
 export default function sdk (state = INITIAL_STATE, action) {
-  saveState(action.type, action.val);
+  action.cache && saveState(action.type, action.val);
   return INITIAL_STATE[action.type] === undefined ? {
       ...state
     } : {
