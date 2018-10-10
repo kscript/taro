@@ -52,6 +52,7 @@ $skin: #62d5c8;
           color: #fff;
           background-color: $skin;
           border-color: $skin;
+          font-size: 26px;
           .at-button__text{
             color: #fff;
           }
@@ -78,8 +79,22 @@ $skin: #62d5c8;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     .scrollview{
+      position: relative;
       padding-bottom: $editorH;
       box-sizing: border-box;
+    }
+    .at-row-list{
+      padding-top: 60px;
+    }
+    .loading-text{
+      text-align: center;
+      color: #888;
+      padding: 0px 20px;
+      font-size: 28px;
+      position:absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
     }
     .message-detail{
       padding: 30px 20px;
@@ -126,12 +141,14 @@ $skin: #62d5c8;
       .message-text{
         display:inline-block;
         font-size: 24px;
-        line-height: 12px;
+        line-height: 36px;
         margin-left: 20px;
         padding: 30px 36px 28px;
         border-radius: 6px;
         color: #888;
         background-color: #efefef;
+        text-align: left;
+        word-break:break-all;
       }
     }
   }

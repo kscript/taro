@@ -45,7 +45,7 @@ export default class Index extends Component {
     }
   }
   config = {
-    navigationBarTitleText: '消息'
+    navigationBarTitleText: '首页'
   }
   dataMapState(key, val){
     if(arguments.length > 1){
@@ -66,9 +66,10 @@ export default class Index extends Component {
       this.setState(maps);
     }
   }
+
+  // 生命周期
   componentWillReceiveProps (nextProps) {
   }
-
   componentWillUnmount () {}
   componentWillMount () {
     let state = store.getState()
@@ -79,11 +80,10 @@ export default class Index extends Component {
         step: 1
       })
     }
-
   }
-  
   componentDidShow () {}
 
+  // 登录相关
   handleInput (stateName, value) {
     this.$data.loginForm[stateName] = value;
   }
@@ -110,6 +110,8 @@ export default class Index extends Component {
       isOpened: false
     })
   }
+
+  // 聊天相关
   messagePageInit(){
     this.setState({
       step: 2
@@ -117,11 +119,10 @@ export default class Index extends Component {
     this.onmessage()
   }
   onmessage(){
-    console.log(this);
     this.props.onmessage({
       events: ['onroamingmsgs','onofflinemsgs', 'onmsg', 'onsessions', 'onusers'],
       eventBus: (type, data) => {
-        console.log(type, data);
+        // console.log(type, data);
         this[type] && this[type](data)
       }
     })
@@ -198,9 +199,11 @@ export default class Index extends Component {
     })
     return sessionList;
   }
+
   getProfile(account){
     return 
   }
+
   itemClick(session){
     let to = session.to;
     Taro.navigateTo({
