@@ -23,7 +23,7 @@ class App extends Component {
   config = {
     pages: [
       'pages/index/index',
-      'pages/message/index',
+      // 'pages/message/index',
       'pages/message/detail'
     ],
     window: {
