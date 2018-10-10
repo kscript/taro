@@ -1,0 +1,27 @@
+/* icon.scss */
+@font-face {
+  font-family: "iconfont";
+  src: url('./assets/fonts/iconfont.eot?t=1539075433984'); /* IE9*/
+  src: url('./assets/fonts/iconfont.eot?t=1539075433984#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('./assets/fonts/iconfont.ttf?t=1539075433984') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('./assets/fonts/iconfont.svg?t=1539075433984#iconfont') format('svg'); /* iOS 4.1- */
+  font-weight: normal;
+  font-style: normal;
+}
+/* 根据第三方字体图标库编写 */
+/* 举例：fa 就是 prefixClass 的值，下面的的图标 css class 命名都要用 fa- 开头  */
+.iconfont {
+  display: inline-block;
+  /* 以下的 font 与上面 @font-face 的 font-family 要一致*/
+  font: normal normal normal 14px/1 iconfont;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.iconfont-emoji:before {
+  content: "\e615";
+}
+.iconfont-add:before {
+  content: "\e69b";
+}

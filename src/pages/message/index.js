@@ -19,12 +19,11 @@ import './index.scss'
     return dispatch(getSessionList(val));
   }
 }))
-// let model = {}
+
 export default class Message extends Component {
   constructor() {
     super(...arguments)
     this.$data = {
-      detail: {},
       sessions: {}, // 会话信息散列
       sessionList: [], // 会话信息数组
       roamingList: [], // 漫游会话临时数组
@@ -36,18 +35,24 @@ export default class Message extends Component {
   config = {
     navigationBarTitleText: '消息'
   }
-  dataMapState(key){
-    let maps = {};
-    if(key instanceof Array){
-      key.forEach(item => {
-        maps[item] = this.$data[item]
-      })
+  dataMapState(key, val){
+    if(arguments.length > 1){
+      this.setState({
+        [key]: val
+      });
     } else {
-      maps = {
-        [key]: this.$data[key]
+      let maps = {};
+      if(key instanceof Array){
+        key.forEach(item => {
+          maps[item] = this.$data[item]
+        })
+      } else {
+        maps = {
+          [key]: this.$data[key]
+        }
       }
+      this.setState(maps);
     }
-    this.setState(maps);
   }
   componentWillReceiveProps (nextProps) {
   }
@@ -138,10 +143,13 @@ export default class Message extends Component {
     })
     return sessionList;
   }
+  getProfile(account){
+    return 
+  }
   itemClick(session){
-
+    let to = session.to;
     Taro.navigateTo({
-      url: '/pages/message/detail?to=' + session.to
+      url: '/pages/message/detail?to=' + to
     });
   }
   render () {

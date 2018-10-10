@@ -1,13 +1,137 @@
+$gridH: 100px;
+$editorH: 88px;
+$skin: #62d5c8;
 .detail{
-  .at-grid{
-    .at-grid-item{
-      height: 96px;
-      .content-inner__img{
-        width: 40px;
-        height: 40px;
+  position: relative;
+  // padding-top: $gridH;
+  // padding-bottom: $editorH;
+  display: flex; 
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+  .grid-box{
+    // position: fixed;
+    top: 0;
+    left: auto;
+    z-index: 100;
+    width: 100%;
+    height: $gridH;
+    background: #fff;
+    .at-grid{
+      .at-grid-item{
+        height: $gridH;
+        .content-inner__img{
+          width: 40px;
+          height: 40px;
+        }
+        .content-inner__text{
+          font-size: 24px;
+        }
       }
-      .content-inner__text{
+    }
+  }
+  .editor-box{
+    width: 100%;
+    height: $editorH;
+    .at-form{
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      position: relative;
+      height: $editorH;
+      padding-left: 180px;
+      padding-right: 0px;
+      .prefix-box{
+        position: absolute;
+        top: 14px;
+        left: 0px;
+        margin-top: 4px;
+        width: 120px;
+        .at-button{
+          color: #fff;
+          background-color: $skin;
+          border-color: $skin;
+          .at-button__text{
+            color: #fff;
+          }
+        }
+      }
+      .suffix-box{
+        padding:10px 14px;
+        box-sizing: border-box;
+        height: $editorH;
+        line-height: $editorH - 4;
+        .iconfont{
+          margin-top: 4px;
+        }
+      }
+      .at-input{
+        padding: 0;
+        border: none;
+      }
+    }
+  }
+  .message-list{
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    .scrollview{
+      padding-bottom: $editorH;
+      box-sizing: border-box;
+    }
+    .message-detail{
+      padding: 30px 20px;
+      position: relative;
+      &.is-self{
+        text-align: right;
+        .photo{
+          image{
+            left: 0;
+            margin-left: 28px;
+          }
+          .taro-img{
+            width: auto;
+            height: auto;
+          }
+          img{
+            width: 56px;
+            height: 56px;
+          }
+        }
+        .message-text{
+          background: $skin;
+          color: #fff;
+        }
+      }
+      
+      .photo{
+        width: 64px;
+        height: 64px;
+        position: relative;
+        image{
+          position: absolute;
+          top: 50%;
+          left: auto;
+          margin-top: -28px;
+          width: 56px;
+          height: 56px;
+        }
+        img{
+          width: 56px;
+          height: 56px;
+        }
+      }
+      .message-text{
+        display:inline-block;
         font-size: 24px;
+        line-height: 12px;
+        margin-left: 20px;
+        padding: 30px 36px 28px;
+        border-radius: 6px;
+        color: #888;
+        background-color: #efefef;
       }
     }
   }

@@ -5,6 +5,8 @@ const INITIAL_STATE = loadState({
   token: '',
   appKey: '',
   detail: {},
+  profile: {},
+  profiles: {},
   sessionList: [],
   isLogin: 0
 })

@@ -37,6 +37,21 @@ export const detail = val => {
     type: 'detail'
   }
 }
+
+export const profile = val => {
+  return {
+    val,
+    cache: true,
+    type: 'profile'
+  }
+}
+export const profiles = val => {
+  return {
+    val,
+    cache: false,
+    type: 'profiles'
+  }
+}
 export const sessionList = val => {
     return {
       val,
@@ -45,6 +60,29 @@ export const sessionList = val => {
     }
 }
 
+export function getHistory(option){
+  return dispatch => {
+    return NIM().then(nim => {
+        return new Promise((resolve, reject) => {
+            nim.getHistoryMsgs({
+                scene: 'p2p',
+                to: option.to,
+                asc: true,
+                lastMsgId: option.lastMsgId,
+                endTime: option.endTime,
+                limit: option.limit,
+                done: (error, data) => {
+                    if(error){
+                        reject(error);
+                    } else {
+                        resolve(data);
+                    }
+                }
+            });
+        })
+    })
+  }
+}
 
 // 异步的action
 export function login (option = {}) {
@@ -62,7 +100,8 @@ export function login (option = {}) {
           }
         }
       }
-    }).then(response => {
+    })
+    .then(response => {
       dispatch(account(option.data.account));
       dispatch(token(response.data.data.token));
       dispatch(appKey(response.data.data.appKey));
@@ -81,7 +120,7 @@ export function getSessionList (option = {}) {
 export function onmessage (option = {}) {
   option.eventBus = option.eventBus || function(){};
   let data = option.data || {};
-  let events = ['onroamingmsgs','onofflinemsgs', 'onmsg'];
+  let events = option.events || [];
   events.forEach(item => {
     if(!data[item]){
       data[item] = function(){

@@ -79,13 +79,13 @@ const config = {
     //   .add(/sdk/)
     //   .end()
     // },
-    module: {
-      postcss: {
-        autoprefixer: {
-          enable: true
-        }
-      }
-    }
+    // module: {
+    //   postcss: {
+    //     autoprefixer: {
+    //       enable: true
+    //     }
+    //   }
+    // }
   }
 }
 
