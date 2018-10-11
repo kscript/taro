@@ -1,33 +1,31 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Image, ScrollView} from '@tarojs/components'
+import { View, Text, Image, ScrollView } from '@tarojs/components'
 import { AtGrid, AtButton, AtInput, AtForm, AtIcon } from 'taro-ui'
 import { connect } from '@tarojs/redux'
-import { getSessionList, getHistory, detail} from '../../redux/actions/sdk'
+import { dataMapState, setActions} from '../../utils'
+import List from './list'
+import { getSessionList, getHistory, onmessage, sendMessage, detail } from '../../redux/actions/sdk'
 
 import './detail.scss'
 
 @connect(({ sdk }) => ({
   sdk
-}), (dispatch) => ({
-  detail: option => {
-    return dispatch(detail(option));
-  },
-  getHistory: option => {
-    return dispatch(getHistory(option));
-  },
-  getSessionList: val => {
-    return dispatch(getSessionList(val));
-  }
-}))
-// let model = {}
+}), dispatch => setActions(
+    [getSessionList, getHistory, onmessage, sendMessage, detail],
+    ['getSessionList', 'getHistory', 'onmessage', 'sendMessage','detail'],
+    dispatch
+))
+
 export default class Message extends Component {
   constructor() {
     console.log(this)
     super(...arguments)
     this.$data = {
-      scrollHeight: 0,
+      sending: false, //发送消息状态
+      scrollHeight: 0, 
       boxHeight: 0,
       scrollTop: 0,
+      scrollCallback: null,
       rects: {},
       detail: {
         init: false,
@@ -37,10 +35,11 @@ export default class Message extends Component {
         resume: {}, // 简历信息
         history: {  // 会话历史记录相关
           to: '',
-          max: 999, // 消息列表最多显示条数, 超出则溢出
-          limit: 10, // 每次加载条数
+          max: 100, // 消息列表最多显示条数, 超出则溢出
+          limit: 100, // 每次加载条数
           count: 0, // 收到的消息数
           endTime: 0, // 最后一条消息的time
+          loadState: 0,
           lastMsgId: 0, // 最后一条消息的id
           overflow: false, // 溢出
           complete: false, // 全部加载完成
@@ -49,9 +48,11 @@ export default class Message extends Component {
     };
     this.state = {
       sessions: {},
+      newSessions: {},
       scrollTop: 4,
       scrollHeight: 0,
-      loadingHistory: false, // 正在加载
+      loadState: 0, // 0未加载 1正在加载
+      messageText: '',
       grid: [
         {
           image: 'https://img12.360buyimg.com/jdphoto/s72x72_jfs/t6160/14/2008729947/2754/7d512a86/595c3aeeNa89ddf71.png',
@@ -80,39 +81,69 @@ export default class Message extends Component {
     if(!this.$data.detail.init){
       this.getHistory();
     }
-    console.log(this.$data)
   }
 
   componentWillMount () {
     let history = this.$data.detail.history;
     history.to = this.$router.params.to;
+    this.onmessage();
     Taro.setNavigationBarTitle({
       title: '与 ' + history.to + ' 对话中'
     })
   }
-  dataMapState(key, val, fn){
-    fn = fn || (() => {});
-    if(arguments.length > 1){
-      this.setState({
-        [key]: val
-      }, fn);
-    } else {
-      let maps = {};
-      if(key instanceof Array){
-        key.forEach(item => {
-          maps[item] = this.$data[item]
-        })
-      } else {
-        maps = {
-          [key]: this.$data[key]
-        }
-      }
-      this.setState(maps, fn);
-    }
+  dataMapState (key, val, fn = () => {}){
+    dataMapState.call(this, key, val, fn);
   }
 
   gridClick(){
 
+  }
+  inputChange(text){
+    this.setState({
+      messageText: text
+    })
+  }
+  onmsg(data){
+    this.addMessage(data)
+  }
+  onmessage(){
+    this.props.onmessage({
+      events: ['onmsg'],
+      eventBus: (type, data) => {
+        console.log(type, data);
+        this[type] && this[type](data)
+      }
+    })
+  }
+  sendMessage(text){
+    if(this.$data.sending)return ;
+    this.$data.sending = true;
+    let to = this.$router.params.to;
+    this.props.sendMessage({
+      to,
+      text,
+      scene: 'p2p',
+      needMsgReceipt: true
+    }).then(data => {
+      this.addMessage(data);
+    })
+  }
+  addMessage(data){
+    this.setState(prevProps => {
+      let sessions = prevProps.sessions;
+      sessions.msgs.push(data);
+      this.$data.detail.history.count++;
+      return {
+        sessions,
+        messageText: ''
+      }
+    }, () => {
+      this.$data.sending = false;
+      this.$data.scrollCallback = data => {
+        this.scrollHandler('bottom', null, data);
+      }
+      this.scrollViewInit();
+    });
   }
   onSubmit(){
 
@@ -121,51 +152,47 @@ export default class Message extends Component {
 
   }
   scrollViewInit(){
-    if(!this.$data.detail.init && this.refs.scrollView){
-      this.$data.detail.init = true;
-      let init = false;
-      this.refs.scrollBox.boundingClientRect(data => {
-        this.$data.boxHeight = data.height;
-      }).exec()
-      this.refs.scrollView.boundingClientRect(data => {
-        let height = 0;
-        if(data){
-          if(!init){
-            init = true;
-            height = data.height;
-          }else{
-            height = data.height - this.$data.scrollHeight;
-          }
-          if(this.$data.scrollTop === height){
-            height+=1;
-            this.$data.scrollTop = height - 1;
-          } else {
-            this.$data.scrollTop = height;
-          }
-          this.$data.scrollHeight = data.height;
-          this.setState({
-            scrollTop: height,
-            loadingHistory: false
-          }, () => {
-            this.$data.detail.history.loading = false;
-          })
-        }
-      }).exec();
+    if(!this.$data.detail.init){
+      if(this.refs.scrollView){
+        this.$data.detail.init = true;
+        this.refs.scrollBox.boundingClientRect(data => {
+          data && (this.$data.boxHeight = data.height);
+        }).exec();
+        this.refs.scrollView.boundingClientRect(data => {
+          this.$data.rects = data;
+          this.$data.scrollCallback && this.$data.scrollCallback(data);
+        }).exec();
+      }
     } else {
-      this.setScrollHeight();
+      this.refs.scrollView.boundingClientRect().exec();
     }
   }
-  setScrollHeight(){
-    this.refs.scrollView && this.refs.scrollView.boundingClientRect().exec();
+  scrollHandler(location, callback, data){
+    let height = 0;
+    data = data || this.$data.rects;
+    if(!data) return;
+    if (location === 'history') {
+      height = data.height - this.$data.scrollHeight;
+    } else if(location === 'bottom') {
+      height = data.height
+    } else if(location === 'top') {
+      height = 0
+    } else {
+      height = location
+    }
+
+    this.setState({
+      scrollTop: height
+    }, callback);
   }
   getHistory(){
     let detail = this.$data.detail;
     let history = detail.history;
-    console.log("getHistory")
-    if(history.loading)return ;
-    history.loading = true;
+    // 如果是 加载中 / 已全部加载 / 消息数溢出
+    if(history.loadState || history.complete || history.overflow)return ;
+    history.loadState = 1;
     this.setState({
-      loadingHistory: true
+      loadState: 1
     }, () => {
       this.props.getHistory(history)
         .then(data => {
@@ -175,17 +202,27 @@ export default class Message extends Component {
             history.overflow = data.msgs.length < space;
             // 小于预期时 为 加载完成
             history.complete = data.msgs.length < history.limit;
-            detail.sessions.msgs = data.msgs.concat(detail.sessions.msgs || []);
-            // detail.sessions = data;
+            data.msgs = data.msgs.concat(detail.sessions.msgs || []);
+            detail.sessions = data;
             history.lastMsgId = data.msgs[0].idServer;
             history.endTime = data.msgs[0].time;
-            this.dataMapState('sessions', detail.sessions, () => {
+            this.setState({
+              sessions: detail.sessions,
+              loadState: 0
+            }, () => {
+              this.$data.scrollCallback = () => {
+                this.scrollHandler('bottom');
+              }
               this.scrollViewInit();
-            });
+            })
           }else{
             history.complete = true;
+            this.setState({
+              loadState: 0
+            }, () => {
+              this.$data.detail.history.loadState = 0;
+            })
           }
-  
         });
     })
   }
@@ -196,53 +233,28 @@ export default class Message extends Component {
         <View className="grid-box">
           <AtGrid data={this.state.grid} hasBorder={false} columnNum={4} onClick={this.gridClick} />
         </View>
-          <ScrollView
+        <ScrollView
           ref="scrollBox"
           className="scrollview message-list"
           style={"white-space:nowrap;height: " + (this.state.scrollHeight === 0 ? "100vh" : '100vh')}
           scrollY
           scrollWithAnimation={false}
-          upperThreshold={5}
+          upperThreshold={10}
           scrollTop={this.state.scrollTop}
-          upperThreshold={this.getHistory.bind(this)}
           onScrollToUpper={this.getHistory.bind(this)}
+          onScrolltoupper={this.getHistory.bind(this)}
           >
             <View ref="scrollView">
               <View className="loading-text">
-                {this.state.loadingHistory ? '正在加载..': ' '}
+                {this.state.loadState == 1 ? '正在加载..': ' '}
               </View>
               <View className="at-row-list">
-              {
-                (this.state.sessions.msgs || []).map(item => {
-                  return item.flow === 'in' 
-                  ?
-                  <View className='at-row at-row__align--start message-detail' key="index">
-                    <View className='at-col at-col-1'>
-                      <View className="photo">
-                        <Image src="http://img12.360buyimg.com/jdphoto/s72x72_jfs/t10660/330/203667368/1672/801735d7/59c85643N31e68303.png"/>
-                      </View>
-                    </View>
-                    <View className='at-col at-col-10 at-col--wrap'>
-                      <View className='message-text'>
-                        {item.text}
-                      </View>
-                    </View>
-                  </View> 
-                  :
-                  <View className='at-row at-row__align--end message-detail is-self' key="index">
-                    <View className='at-col at-col-10 at-col--wrap'>
-                      <View className='message-text'>
-                        {item.text}
-                      </View>
-                    </View>
-                    <View className='at-col at-col-1'>
-                      <View className="photo">
-                        <Image src="http://img12.360buyimg.com/jdphoto/s72x72_jfs/t10660/330/203667368/1672/801735d7/59c85643N31e68303.png"/>
-                      </View>
-                    </View>
+                <View className="hidden-list">
+                  <View ref="hiddenList">
+                    <List list={this.state.newSessions.msgs || []} my-class="message-type-hidden"></List>
                   </View>
-                })
-              }
+                </View>
+                <List list={this.state.sessions.msgs || []} my-class="message-type-normal"></List>
               </View>
             </View>
           </ScrollView>
@@ -251,8 +263,12 @@ export default class Message extends Component {
           <AtForm>
           <AtInput
             clear
+            cursorSpacing={8}
             type='text'
             placeholder='新消息'
+            value={this.state.messageText}
+            onChange={this.inputChange}
+            onConfirm={this.sendMessage}
           >
             <View className="prefix-box">
               <AtButton

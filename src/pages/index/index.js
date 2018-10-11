@@ -4,26 +4,18 @@ import { AtInput, AtForm, AtButton, AtToast, AtList, AtListItem } from "taro-ui"
 import { connect } from '@tarojs/redux'
 import { store } from '../../redux'
 import { login } from '../../redux/actions/sdk'
+import { dataMapState, setActions} from '../../utils'
 import { getSessionList, onmessage, detail } from '../../redux/actions/sdk'
 
 import './index.scss'
 
 @connect(({ sdk }) => ({
   sdk
-}), (dispatch) => ({
-  login (option) {
-    return dispatch(login(option));
-  },
-  onmessage: option => {
-    return dispatch(onmessage(option));
-  },
-  detail: option => {
-    return dispatch(detail(option));
-  },
-  getSessionList: val => {
-    return dispatch(getSessionList(val));
-  }
-}))
+}), (dispatch) => setActions(
+  [login, onmessage, detail, getSessionList],
+  ["login", "onmessage", "detail", "getSessionList"],
+  dispatch
+))
 
 export default class Index extends Component {
   constructor() {
@@ -47,24 +39,8 @@ export default class Index extends Component {
   config = {
     navigationBarTitleText: '首页'
   }
-  dataMapState(key, val){
-    if(arguments.length > 1){
-      this.setState({
-        [key]: val
-      });
-    } else {
-      let maps = {};
-      if(key instanceof Array){
-        key.forEach(item => {
-          maps[item] = this.$data[item]
-        })
-      } else {
-        maps = {
-          [key]: this.$data[key]
-        }
-      }
-      this.setState(maps);
-    }
+  dataMapState (key, val, fn = () => {}){
+    dataMapState.call(this, key, val, fn);
   }
 
   // 生命周期
@@ -81,7 +57,10 @@ export default class Index extends Component {
       })
     }
   }
-  componentDidShow () {}
+  componentDidShow () {
+    console.log("componentDidShow", this)
+  }
+  
 
   // 登录相关
   handleInput (stateName, value) {
@@ -141,6 +120,7 @@ export default class Index extends Component {
     let list = this.$data.sessionList;
     let account = data[data.flow === 'in' ? 'from' : 'to'];
     let index = -1;
+    // 根据账号找到会话对象的位置
     list.forEach((item, index1) => {
       if(item.to === account){
         index = index1

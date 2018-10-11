@@ -32,15 +32,15 @@ $skin: #62d5c8;
   }
   .editor-box{
     width: 100%;
-    height: $editorH;
+    // height: $editorH;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
     .at-form{
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      z-index: 100;
-      position: relative;
+      // position: relative;
       height: $editorH;
-      padding-left: 180px;
+      padding-left: 160px;
       padding-right: 0px;
       .prefix-box{
         position: absolute;
@@ -78,13 +78,18 @@ $skin: #62d5c8;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: $editorH;;
     .scrollview{
       position: relative;
       padding-bottom: $editorH;
       box-sizing: border-box;
     }
+    .hidden-list{
+      overflow:hidden;
+      height:0;
+    }
     .at-row-list{
-      padding-top: 60px;
+      padding-top: 34px;
     }
     .loading-text{
       text-align: center;
@@ -95,61 +100,6 @@ $skin: #62d5c8;
       top: 0;
       left: 0;
       width: 100%;
-    }
-    .message-detail{
-      padding: 30px 20px;
-      position: relative;
-      &.is-self{
-        text-align: right;
-        .photo{
-          image{
-            left: 0;
-            margin-left: 28px;
-          }
-          .taro-img{
-            width: auto;
-            height: auto;
-          }
-          img{
-            width: 56px;
-            height: 56px;
-          }
-        }
-        .message-text{
-          background: $skin;
-          color: #fff;
-        }
-      }
-      
-      .photo{
-        width: 64px;
-        height: 64px;
-        position: relative;
-        image{
-          position: absolute;
-          top: 50%;
-          left: auto;
-          margin-top: -28px;
-          width: 56px;
-          height: 56px;
-        }
-        img{
-          width: 56px;
-          height: 56px;
-        }
-      }
-      .message-text{
-        display:inline-block;
-        font-size: 24px;
-        line-height: 36px;
-        margin-left: 20px;
-        padding: 30px 36px 28px;
-        border-radius: 6px;
-        color: #888;
-        background-color: #efefef;
-        text-align: left;
-        word-break:break-all;
-      }
     }
   }
 }

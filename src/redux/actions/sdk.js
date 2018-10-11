@@ -116,6 +116,27 @@ export function getSessionList (option = {}) {
     return SESSION.getLocalSessions(option)
   }
 }
+export function sendMessage (option = {}) {
+  return dispatch => {
+    return NIM().then(nim => {
+        return new Promise((resolve, reject) => {
+          let fn = option.done;
+          // 扩展从option传过来的done方法, 增加 next 函数, 手动控制Promise完成的时机
+          option.done = (error, data) => {
+            let next = () => {
+              if(error){
+                reject(error);
+              } else {
+                resolve(data);
+              }
+            }
+            fn ? fn(error, data, next) : next();
+          }
+          nim.sendText(option);
+        })
+    })
+  }
+}
 
 export function onmessage (option = {}) {
   option.eventBus = option.eventBus || function(){};

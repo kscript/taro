@@ -76,7 +76,31 @@ export let SESSION = {
         })
     },
 };
-
+export const dataMapState = function (key, val, fn) {
+    let maps = {};
+    let keys = key instanceof Array ? key : [key];
+    let data = {};
+    if(val === undefined){
+        data = this.$data
+    }else{
+        data[key] = val;
+    }
+    keys.forEach(function(item) {
+        maps[item] = data[item]
+    });
+    this.setState(maps, fn);
+}
+export const setActions = function(actions, list, dispatch){
+    let result = {};
+    actions = actions || {};
+    list = list || [];
+    list.forEach(function(item, index){
+        result[item] = function(option) {
+            return dispatch(actions[index](option));
+        }
+    });
+    return result;
+}
 
 
 export default {

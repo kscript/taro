@@ -1,0 +1,58 @@
+$gridH: 100px;
+$editorH: 88px;
+$skin: #62d5c8;
+.message-detail{
+  padding: 30px 20px;
+  position: relative;
+  &.is-self{
+    text-align: right;
+    .photo{
+      image{
+        left: 0;
+        margin-left: 28px;
+      }
+      .taro-img{
+        width: auto;
+        height: auto;
+      }
+      img{
+        width: 56px;
+        height: 56px;
+      }
+    }
+    .message-text{
+      background: $skin;
+      color: #fff;
+    }
+  }
+  
+  .photo{
+    width: 64px;
+    height: 64px;
+    position: relative;
+    image{
+      position: absolute;
+      top: 50%;
+      left: auto;
+      margin-top: -28px;
+      width: 56px;
+      height: 56px;
+    }
+    img{
+      width: 56px;
+      height: 56px;
+    }
+  }
+  .message-text{
+    display:inline-block;
+    font-size: 24px;
+    line-height: 36px;
+    margin-left: 20px;
+    padding: 30px 36px 28px;
+    border-radius: 6px;
+    color: #888;
+    background-color: #efefef;
+    text-align: left;
+    word-break:break-all;
+  }
+}
