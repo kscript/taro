@@ -1,6 +1,8 @@
 var store = {
   token: "e5a8573ad3f165423f66dea2a2f29237",
-  token2: "162870717d84d51ca245bb795e892139",
+  test1111: "e5a8573ad3f165423f66dea2a2f29237",
+  test2222: "162870717d84d51ca245bb795e892139",
+  test3333: "f4f4011e21628800d3ec5f4a4af0983e",
   appKey: "9877e7b70f30866c74e409a5ea60373d"
 }
 function LocalStorage(){

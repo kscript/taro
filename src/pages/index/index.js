@@ -5,17 +5,28 @@ import { connect } from '@tarojs/redux'
 import { store } from '../../redux'
 import { login } from '../../redux/actions/sdk'
 import { dataMapState, setActions} from '../../utils'
-import { getSessionList, onmessage, detail } from '../../redux/actions/sdk'
+import { getSessionList, sessions, detail, addEventListener } from '../../redux/actions/sdk'
 
 import './index.scss'
 
 @connect(({ sdk }) => ({
   sdk
-}), (dispatch) => setActions(
-  [login, onmessage, detail, getSessionList],
-  ["login", "onmessage", "detail", "getSessionList"],
-  dispatch
-))
+}), (dispatch) => {
+  return {
+    getSessionList: option => {
+      return dispatch(getSessionList(option))
+    },
+    sessions: option => {
+      return dispatch(sessions(option))
+    },
+    addEventListener: option => {
+      return dispatch(addEventListener(option))
+    },
+    detail: option => {
+      return dispatch(detail(option))
+    }
+  }
+})
 
 export default class Index extends Component {
   constructor() {
@@ -30,6 +41,8 @@ export default class Index extends Component {
       roamingList: [], // 漫游会话临时数组
     };
     this.state = {
+      sessions: {},
+      sessionList: [],
       errMessage: '',
       step: 0, // 0: init 1: login 2: message
       isOpened: false,
@@ -40,7 +53,9 @@ export default class Index extends Component {
     navigationBarTitleText: '首页'
   }
   dataMapState (key, val, fn = () => {}){
-    dataMapState.call(this, key, val, fn);
+    dataMapState.call(this, key, val, () => {
+      this.props.sessions(this.$data.sessions)
+    });
   }
 
   // 生命周期
@@ -48,6 +63,7 @@ export default class Index extends Component {
   }
   componentWillUnmount () {}
   componentWillMount () {
+    console.log([this, Taro])
     let state = store.getState()
     if(state.sdk.isLogin && state.sdk.account){
       this.messagePageInit();
@@ -58,7 +74,7 @@ export default class Index extends Component {
     }
   }
   componentDidShow () {
-    console.log("componentDidShow", this)
+    // console.log("componentDidShow", this)
   }
   
 
@@ -95,25 +111,22 @@ export default class Index extends Component {
     this.setState({
       step: 2
     })
-    this.onmessage()
+    Taro.eventCenter.on('sdk.messages', args => {
+      let type = args[0];
+      this[type] && this[type](args[1]);
+    });
+    this.props.addEventListener();
   }
-  onmessage(){
-    this.props.onmessage({
-      events: ['onroamingmsgs','onofflinemsgs', 'onmsg', 'onsessions', 'onusers'],
-      eventBus: (type, data) => {
-        // console.log(type, data);
-        this[type] && this[type](data)
-      }
-    })
+  onupdatesession(data){
+    this.onsessions(data);
   }
   onsessions(list){
     this.formatSession('onsessions', list);
-    this.dataMapState('sessionList');
+    this.dataMapState(['sessions','sessionList']);
   }
   onmsg(data){
     this.updateFriendInfo(data);
-    // this.formatSession('onmsgs', data);
-    this.dataMapState('sessionList');
+    this.dataMapState(['sessions','sessionList']);
   }
   updateFriendInfo(data){
     let sessions = this.$data.sessions;
@@ -146,16 +159,16 @@ export default class Index extends Component {
     list.unshift(sessions[account]);
     return list;
   }
-
+  // 首页不再管理漫游消息
   onroamingmsgs(data){
-    if(data && data.msgs && !data.lastMsg){
-      data.lastMsg = data.msgs.slice(-1)[0];
-    }
-    this.$data.roamingList.push(data);
-    setTimeout(() => {
-      this.formatSession('onroamingmsgs', this.$data.roamingList.splice(0));
-      this.dataMapState('sessionList');
-    }, 0);
+    // if(data && data.msgs && !data.lastMsg){
+    //   data.lastMsg = data.msgs.slice(-1)[0];
+    // }
+    // this.$data.roamingList.push(data);
+    // setTimeout(() => {
+    //   this.formatSession('onroamingmsgs', this.$data.roamingList.splice(0));
+    //   this.dataMapState(['sessions','sessionList']);
+    // }, 0);
   }
   
   formatSession(type, data){
@@ -174,7 +187,14 @@ export default class Index extends Component {
           });
         }
       } else {
-        sessions[item.to] = item;
+
+        let account = item.to;
+        sessions[account] = item;
+        sessionList.forEach((session, index) => {
+          if(session.to === account){
+            sessionList[index] = item;
+          }
+        });
       }
     })
     return sessionList;
@@ -184,9 +204,8 @@ export default class Index extends Component {
     return 
   }
 
-  itemClick(session){
-    let to = session.to;
-    Taro.navigateTo({
+  itemClick(to){
+    to && Taro.navigateTo({
       url: '/pages/message/detail?to=' + to
     });
   }
@@ -241,9 +260,9 @@ export default class Index extends Component {
                     (this.state.sessionList||[]).map(item => {
                       return <AtListItem
                         key="index"
-                        title={item.to}
-                        note={item.lastMsg.text}
-                        onClick={this.itemClick.bind(this, item)}
+                        title={this.state.sessions[item.to].to}
+                        note={this.state.sessions[item.to].lastMsg.text}
+                        onClick={this.itemClick.bind(this, item.to)}
                         // extraText='详细信息'
                         thumb='http://img12.360buyimg.com/jdphoto/s72x72_jfs/t10660/330/203667368/1672/801735d7/59c85643N31e68303.png'
                       />

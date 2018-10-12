@@ -7,16 +7,20 @@ const INITIAL_STATE = loadState({
   detail: {},
   profile: {},
   profiles: {},
-  sessionList: [],
+  sessions: {},
   isLogin: 0
 })
 
 export default function sdk (state = INITIAL_STATE, action) {
+  let result = action.val;
+  if(action.handler){
+    result = action.handler(state);
+  }
   action.cache && saveState(action.type, action.val);
   return INITIAL_STATE[action.type] === undefined ? {
       ...state
     } : {
       ...state,
-      [action.type]: action.val
+      [action.type]: result
     }
 }

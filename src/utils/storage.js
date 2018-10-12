@@ -12,12 +12,16 @@ export const loadState = (obj, pref = '') => {
   let result = {};
   for(let key in obj){
     let state = Storage.getItem(pref + key);
+    if(state === null){
+      state = obj[key];
+    }
     try{
       result[key] = JSON.parse(state);
     }catch(e){
       result[key] = state || obj[key];
     }
   }
+  if(result )
   return result;
 }
 export const saveState = (key, val, pref = '') => {

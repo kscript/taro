@@ -4,26 +4,37 @@ import { AtGrid, AtButton, AtInput, AtForm, AtIcon } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import { dataMapState, setActions} from '../../utils'
 import List from './list'
-import { getSessionList, getHistory, onmessage, sendMessage, detail } from '../../redux/actions/sdk'
+import { getSessionList, getHistory, sendMessage, detail, sessionsItem} from '../../redux/actions/sdk'
 
 import './detail.scss'
 
 @connect(({ sdk }) => ({
   sdk
-}), dispatch => setActions(
-    [getSessionList, getHistory, onmessage, sendMessage, detail],
-    ['getSessionList', 'getHistory', 'onmessage', 'sendMessage','detail'],
-    dispatch
-))
+}), dispatch => {
+  return {
+    getSessionList: option => {
+      return dispatch(getSessionList(option))
+    },
+    getHistory: option => {
+      return dispatch(getHistory(option))
+    },
+    sendMessage: option => {
+      return dispatch(sendMessage(option))
+    },
+    detail: option => {
+      return dispatch(detail(option))
+    },
+    sessionsItem: option => {
+      return dispatch(sessionsItem(option))
+    }
+  }
+})
 
 export default class Message extends Component {
   constructor() {
-    console.log(this)
     super(...arguments)
     this.$data = {
       sending: false, //发送消息状态
-      scrollHeight: 0, 
-      boxHeight: 0,
       scrollTop: 0,
       scrollCallback: null,
       rects: {},
@@ -36,7 +47,8 @@ export default class Message extends Component {
         history: {  // 会话历史记录相关
           to: '',
           max: 100, // 消息列表最多显示条数, 超出则溢出
-          limit: 100, // 每次加载条数
+          limit: 50, // 每次加载条数
+          roaming: 0,
           count: 0, // 收到的消息数
           endTime: 0, // 最后一条消息的time
           loadState: 0,
@@ -49,7 +61,7 @@ export default class Message extends Component {
     this.state = {
       sessions: {},
       newSessions: {},
-      scrollTop: 4,
+      scrollTop: 0,
       scrollHeight: 0,
       loadState: 0, // 0未加载 1正在加载
       messageText: '',
@@ -78,15 +90,37 @@ export default class Message extends Component {
     navigationBarTitleText: '聊天'
   }
   componentDidMount(){
-    if(!this.$data.detail.init){
-      this.getHistory();
+    let to = this.$router.params.to;
+    let sessions = (this.props.sdk.sessions || {})[to] || {};
+    let detail = this.$data.detail;
+    detail.sessions = sessions;
+    if (!this.$data.detail.init) {
+      if (sessions && sessions.history) {
+        detail.history = sessions.history;
+        this.setState({
+          sessions
+        },() => {
+          this.$data.scrollCallback = () => {
+            this.scrollHandler('bottom');
+          }
+          this.scrollViewInit();
+        });
+      } else {
+        detail.history.roaming = sessions.roaming = (sessions.msgs || []).length;
+        this.getHistory();
+      }
     }
   }
 
   componentWillMount () {
+    console.log([this, Taro]);
     let history = this.$data.detail.history;
     history.to = this.$router.params.to;
-    this.onmessage();
+
+    Taro.eventCenter.on('sdk.messages', args => {
+      let type = args[0];
+      this[type] && this[type](args[1]);
+    });
     Taro.setNavigationBarTitle({
       title: '与 ' + history.to + ' 对话中'
     })
@@ -105,15 +139,6 @@ export default class Message extends Component {
   }
   onmsg(data){
     this.addMessage(data)
-  }
-  onmessage(){
-    this.props.onmessage({
-      events: ['onmsg'],
-      eventBus: (type, data) => {
-        console.log(type, data);
-        this[type] && this[type](data)
-      }
-    })
   }
   sendMessage(text){
     if(this.$data.sending)return ;
@@ -151,20 +176,63 @@ export default class Message extends Component {
   selectTalk(){
 
   }
+  // 
   scrollViewInit(){
     if(!this.$data.detail.init){
       if(this.refs.scrollView){
         this.$data.detail.init = true;
-        this.refs.scrollBox.boundingClientRect(data => {
-          data && (this.$data.boxHeight = data.height);
-        }).exec();
-        this.refs.scrollView.boundingClientRect(data => {
-          this.$data.rects = data;
-          this.$data.scrollCallback && this.$data.scrollCallback(data);
-        }).exec();
+        if(!this.refs.scrollView.boundingClientRect){
+          // 没有boundingClientRect 说明是h5环境
+          this.refs.scrollView.boundingClientRect = callback => {
+            return boundingClientRect.call(this.refs.scrollView, callback);
+          };
+          // data: height 容器高度 scrollHeight 内容高度
+          this.refs.scrollView.boundingClientRect(data => {
+            let result = {
+              height: data.scrollHeight,
+              oldHeight: this.$data.rects.height || 0
+            }
+            this.$data.rects = result;
+            this.$data.scrollCallback && this.$data.scrollCallback(result);
+          }).exec();
+
+        } else {
+          this.refs.scrollBox.boundingClientRect(data => {
+            let result = {
+              height: data.height,
+              oldHeight: this.$data.rects.height || 0
+            }
+            this.$data.rects = result;
+            this.$data.scrollCallback && this.$data.scrollCallback(result);
+          }).exec();
+        }
+        
       }
     } else {
-      this.refs.scrollView.boundingClientRect().exec();
+      if(this.refs.scrollBox.boundingClientRect){
+        this.refs.scrollBox.boundingClientRect().exec();
+      } else {
+        this.refs.scrollView.boundingClientRect().exec();
+      }
+    }
+    function boundingClientRect(callback){
+      let queue = [];
+      let rects = {
+        height: this.container.clientHeight,
+        scrollHeight: this.container.scrollHeight
+      };
+      let func = function(){
+        callback && callback(rects);
+      }
+      if(callback){
+        queue.push(func);
+      }
+      func.exec = function(){
+        queue.forEach(item => {
+          item();
+        })
+      }
+      return func;
     }
   }
   scrollHandler(location, callback, data){
@@ -172,7 +240,7 @@ export default class Message extends Component {
     data = data || this.$data.rects;
     if(!data) return;
     if (location === 'history') {
-      height = data.height - this.$data.scrollHeight;
+      height = data.height - data.oldHeight + 4;
     } else if(location === 'bottom') {
       height = data.height
     } else if(location === 'top') {
@@ -185,7 +253,7 @@ export default class Message extends Component {
       scrollTop: height
     }, callback);
   }
-  getHistory(){
+  getHistory(mode){
     let detail = this.$data.detail;
     let history = detail.history;
     // 如果是 加载中 / 已全部加载 / 消息数溢出
@@ -195,28 +263,40 @@ export default class Message extends Component {
       loadState: 1
     }, () => {
       this.props.getHistory(history)
-        .then(data => {
+        .then(({data, nim}) => {
           if(data.msgs && data.msgs.length){
-            let space = history.max - history.limit - history.count - (detail.sessions.msgs || []).length;
+            // 剩余空间 = 上限 - 本次 - (已加载 - 新消息 - 漫游)
+            let space = history.max - history.limit - (detail.sessions.msgs || []).length + history.count + history.roaming;
             // 超出剩余空间 为 溢出
-            history.overflow = data.msgs.length < space;
+            history.overflow = data.msgs.length > space;
             // 小于预期时 为 加载完成
             history.complete = data.msgs.length < history.limit;
-            data.msgs = data.msgs.concat(detail.sessions.msgs || []);
-            detail.sessions = data;
+            detail.sessions.msgs = nim.mergeMsgs(data.msgs, detail.sessions.msgs || []);
+            // detail.sessions = data;
             history.lastMsgId = data.msgs[0].idServer;
             history.endTime = data.msgs[0].time;
+            detail.sessions.history = history;
             this.setState({
               sessions: detail.sessions,
               loadState: 0
             }, () => {
+              this.props.sessionsItem({
+                key: detail.sessions.to,
+                value: detail.sessions
+              });
               this.$data.scrollCallback = () => {
-                this.scrollHandler('bottom');
+                this.scrollHandler(mode || 'bottom');
+                this.$data.detail.history.loadState = 0;
               }
               this.scrollViewInit();
             })
           }else{
             history.complete = true;
+            detail.sessions.history = history;
+            this.props.sessionsItem({
+              key: detail.sessions.to,
+              value: detail.sessions
+            });
             this.setState({
               loadState: 0
             }, () => {
@@ -234,17 +314,17 @@ export default class Message extends Component {
           <AtGrid data={this.state.grid} hasBorder={false} columnNum={4} onClick={this.gridClick} />
         </View>
         <ScrollView
-          ref="scrollBox"
+          ref="scrollView"
           className="scrollview message-list"
-          style={"white-space:nowrap;height: " + (this.state.scrollHeight === 0 ? "100vh" : '100vh')}
+          style="white-space:nowrap;height:100vh;"
           scrollY
-          scrollWithAnimation={false}
+          scrollWithAnimation={true}
           upperThreshold={10}
           scrollTop={this.state.scrollTop}
-          onScrollToUpper={this.getHistory.bind(this)}
-          onScrolltoupper={this.getHistory.bind(this)}
+          onScrollToUpper={this.getHistory.bind(this, 'history')}
+          onScrolltoupper={this.getHistory.bind(this, 'history')}
           >
-            <View ref="scrollView">
+            <View ref="scrollBox">
               <View className="loading-text">
                 {this.state.loadState == 1 ? '正在加载..': ' '}
               </View>

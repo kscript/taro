@@ -24,9 +24,7 @@ return {
   login: {
     format: function(method, data, result){
       let account = data.account || data.username;
-      if(result.data && account === 'test2222'){
-        result.data.token = localStorage.getItem('token2')
-      }
+      result.data.token = localStorage.getItem(account) || localStorage.getItem('token')
       return result;
     },
     post: Mock.mock({
