@@ -12,7 +12,6 @@ module.exports = (req, res, next) => {
     'Access-Control-Allow-Credentials': true,
     'Content-Type': 'text/html;charset=utf-8'
   }
-
   // 验证数据
   if(data){
     // 验证方法
@@ -26,15 +25,15 @@ module.exports = (req, res, next) => {
         message: '方法错误'
       }
     }
+    if(data.format){
+      result = data.format(method, req.body, result);
+    }
   } else {
     res.writeHead(404, headConfig);
     result = {
       code: 404,
       message: '请求地址不存在'
     }
-  }
-  if(data.format){
-    result = data.format(method, req.body, result);
   }
   res.end(JSON.stringify(result));
 }

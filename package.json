@@ -12,7 +12,8 @@
     "dev:h5": "npm run build:h5 -- --watch",
     "dev:rn": "npm run build:rn -- --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "mock": "json-server mock/db.json --middlewares mock/main.js"
+    "jsdoc": "jsdoc -R README.md -r -c jsdoc.json ./src",
+    "mock": "json-server mock/db.json --middlewares mock/main.js --port 3000"
   },
   "author": "",
   "license": "MIT",

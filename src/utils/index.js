@@ -7,6 +7,12 @@ if (process.env.TARO_ENV === 'weapp') {
 } else if (process.env.TARO_ENV === 'h5') {
     SDK = require('../../static/sdk/NIM_Web_SDK_v5.6.0.js');
 }
+/**
+ * 得到一个nim实例
+ * @func
+ * @param option {object} 设置 nim 的一些配置
+ * @return niminstace
+ */
 export const NIM = function(option){
     option = option || {};
     let State = store.getState();
@@ -45,8 +51,15 @@ export const NIM = function(option){
     })
 
 }
-
+/**
+* 会话对象
+* @namespace {object} SESSION
+*/
 export let SESSION = {
+    /**
+     * 获取本地会话列表
+     * @param option {object} 指定一些参数 如 limit
+     */
     getLocalSessions (option = {}) {
         return new Promise((resolve, reject) => {
             NIM().then(nim => {
@@ -64,6 +77,10 @@ export let SESSION = {
             })
         })
     },
+    /**
+     * 获取云端会话列表
+     * @param list {array} 当前列表(用于获取到数据后合并)
+     */
     getSessionsList(list){
         return new Promise((resolve, reject) => {
             NIM().then(nim => {
@@ -76,6 +93,14 @@ export let SESSION = {
         })
     },
 };
+
+/**
+ * 将数据映射到state
+ * @func
+ * @param key {string} 要设置的key
+ * @param val {any} 要设置的值 
+ * @param fn {function} 回调函数
+ */
 export const dataMapState = function (key, val, fn) {
     let maps = {};
     let keys = key instanceof Array ? key : [key];

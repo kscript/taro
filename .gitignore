@@ -13,5 +13,6 @@ project.config.json
 .eslintcache
 .babelrc
 
+out/
 site/
 docs/h5/

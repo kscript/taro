@@ -16,8 +16,13 @@ if (process.env.TARO_ENV === 'weapp') {
 import './app.scss'
 import './icon.scss'
 
-// const store = configStore()
-
+/**
+ * 入口类
+ * @class
+ * @example
+ * -
+ * @author -
+ */
 class App extends Component {
 
   config = {

@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text, Image, ScrollView } from '@tarojs/components'
-import { AtGrid, AtButton, AtInput, AtForm, AtIcon } from 'taro-ui'
+import { AtGrid, AtButton, AtInput, AtForm, AtIcon, AtModal} from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import { dataMapState, setActions} from '../../utils'
 import List from './list'
@@ -59,6 +59,11 @@ export default class Message extends Component {
       }
     };
     this.state = {
+      modal: {
+        talk: {
+          isOpen: false
+        }
+      },
       sessions: {},
       newSessions: {},
       scrollTop: 0,
@@ -171,9 +176,6 @@ export default class Message extends Component {
     });
   }
   onSubmit(){
-
-  }
-  selectTalk(){
 
   }
   // 
@@ -307,9 +309,32 @@ export default class Message extends Component {
     })
   }
   
+  selectTalk(){
+    this.setState(prevProps => {
+      prevProps.modal.talk.isOpen = true;
+      return prevProps
+    })
+  }
+  talkCancel(){
+    this.setState(prevProps => {
+      prevProps.modal.talk.isOpen = false;
+      return prevProps
+    })
+  }
+  talkConfirm(){
+    this.setState(prevProps => {
+      prevProps.modal.talk.isOpen = false;
+      return prevProps
+    })
+  }
   render () {
     return (
       <View className='detail'>
+        <AtModal
+          isOpened={this.state.modal.talk.isOpen}
+          title='常用语'
+          content='欢迎加入京东凹凸实验室\n\r欢迎加入京东凹凸实验室'
+        />
         <View className="grid-box">
           <AtGrid data={this.state.grid} hasBorder={false} columnNum={4} onClick={this.gridClick} />
         </View>
