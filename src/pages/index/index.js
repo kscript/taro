@@ -8,7 +8,6 @@ import { dataMapState, setActions} from '../../utils'
 import { getSessionList, sessions, detail, addEventListener } from '../../redux/actions/sdk'
 
 import './index.scss'
-
 @connect(({ sdk }) => ({
   sdk
 }), (dispatch) => {
@@ -28,7 +27,14 @@ import './index.scss'
   }
 })
 
-export default class Index extends Component {
+/**
+ * @classdesc
+ * 首页
+ */
+class Index extends Component {
+  /**
+   * @constructor
+   */
   constructor() {
     super(...arguments)
     this.$data = {
@@ -49,6 +55,9 @@ export default class Index extends Component {
       show: false
     }
   }
+  /**
+   * 小程序配置项
+   */
   config = {
     navigationBarTitleText: '首页'
   }
@@ -58,7 +67,6 @@ export default class Index extends Component {
     });
   }
 
-  // 生命周期
   componentWillReceiveProps (nextProps) {
   }
   componentWillUnmount () {}
@@ -76,12 +84,19 @@ export default class Index extends Component {
   componentDidShow () {
     // console.log("componentDidShow", this)
   }
-  
 
-  // 登录相关
+  /**
+   * 绑定输入框
+   * @param stateName {string} 
+   * @param value {string}
+   */
   handleInput (stateName, value) {
     this.$data.loginForm[stateName] = value;
   }
+  /**
+   * 提交登录
+   * @param data {object} 登录信息
+   */
   submitLogin(data){
     this.props.login({
       url: 'login',
@@ -106,7 +121,9 @@ export default class Index extends Component {
     })
   }
 
-  // 聊天相关
+  /**
+   * 会话页面初始化
+   */
   messagePageInit(){
     this.setState({
       step: 2
@@ -117,18 +134,38 @@ export default class Index extends Component {
     });
     this.props.addEventListener();
   }
+  /**
+   * 更新会话
+   * @func
+   * @param data {object} 会话
+   */
   onupdatesession(data){
     this.onsessions(data);
   }
+  /**
+   * 同步最近会话列表
+   * @func
+   * @param list {array|object} 会话/列表
+   */
   onsessions(list){
     this.formatSession('onsessions', list);
     this.dataMapState(['sessions','sessionList']);
   }
+  /**
+   * 收到消息
+   * @func
+   * @param data {object} 消息
+   */
   onmsg(data){
-    this.updateFriendInfo(data);
+    this.updateSessionInfo(data);
     this.dataMapState(['sessions','sessionList']);
   }
-  updateFriendInfo(data){
+  /**
+   * 更新会话信息及列表
+   * @func
+   * @param data {object} 会话信息
+   */
+  updateSessionInfo(data){
     let sessions = this.$data.sessions;
     let list = this.$data.sessionList;
     let account = data[data.flow === 'in' ? 'from' : 'to'];
@@ -159,8 +196,14 @@ export default class Index extends Component {
     list.unshift(sessions[account]);
     return list;
   }
-  // 首页不再管理漫游消息
+  /**
+   * 漫游消息
+   * @func
+   * @param data {object} 消息
+   */
   onroamingmsgs(data){
+    // // 首页不再管理漫游消息
+
     // if(data && data.msgs && !data.lastMsg){
     //   data.lastMsg = data.msgs.slice(-1)[0];
     // }
@@ -170,7 +213,12 @@ export default class Index extends Component {
     //   this.dataMapState(['sessions','sessionList']);
     // }, 0);
   }
-  
+  /**
+   * 格式化会话信息
+   * @func
+   * @param type {string} 要格式化的会话类型
+   * @param data {object} 要格式化的消息
+   */
   formatSession(type, data){
     if(!(data instanceof Object))return ;
     let sessions = this.$data.sessions;
@@ -203,7 +251,11 @@ export default class Index extends Component {
   getProfile(account){
     return 
   }
-
+  /**
+   * 用户点击某个会话
+   * @func
+   * @param to {string} 选中的账号
+   */
   itemClick(to){
     to && Taro.navigateTo({
       url: '/pages/message/detail?to=' + to
@@ -274,3 +326,4 @@ export default class Index extends Component {
     )
   }
 }
+export default Index

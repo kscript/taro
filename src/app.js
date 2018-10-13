@@ -17,6 +17,10 @@ import './app.scss'
 import './icon.scss'
 
 /**
+ * @namespace Taro
+ */
+
+/**
  * 入口类
  * @class
  * @example

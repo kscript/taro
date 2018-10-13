@@ -29,8 +29,14 @@ import './detail.scss'
     }
   }
 })
-
-export default class Message extends Component {
+/**
+ * @classdesc
+ * 会话详情
+ */
+class Message extends Component {
+  /**
+   * @constructor
+   */
   constructor() {
     super(...arguments)
     this.$data = {
@@ -137,14 +143,25 @@ export default class Message extends Component {
   gridClick(){
 
   }
+
   inputChange(text){
     this.setState({
       messageText: text
     })
   }
+  /**
+   * 收到消息
+   * @func
+   * @param data {object} 消息
+   */
   onmsg(data){
     this.addMessage(data)
   }
+  /**
+   * 发送消息
+   * @func
+   * @param text {string} 消息文本内容
+   */
   sendMessage(text){
     if(this.$data.sending)return ;
     this.$data.sending = true;
@@ -158,6 +175,11 @@ export default class Message extends Component {
       this.addMessage(data);
     })
   }
+  /**
+   * 添加本地消息到列表
+   * @func
+   * @param text {object} 消息
+   */
   addMessage(data){
     this.setState(prevProps => {
       let sessions = prevProps.sessions;
@@ -178,7 +200,10 @@ export default class Message extends Component {
   onSubmit(){
 
   }
-  // 
+  /**
+   * 设置滚动条相关数据
+   * @func
+   */
   scrollViewInit(){
     if(!this.$data.detail.init){
       if(this.refs.scrollView){
@@ -237,6 +262,13 @@ export default class Message extends Component {
       return func;
     }
   }
+  /**
+   * 设置滚动条位置
+   * @func
+   * @param location {number|string} number/top/bottom/history
+   * @param callback {function} 设置完滚动条位置后的回调
+   * @param data {object} 滚动条相关高度的信息
+   */
   scrollHandler(location, callback, data){
     let height = 0;
     data = data || this.$data.rects;
@@ -255,6 +287,11 @@ export default class Message extends Component {
       scrollTop: height
     }, callback);
   }
+  /**
+   * 获取云端历史记录
+   * @func
+   * @param mode {string} history/bottom 用于加载完历史记录后滚动到底部
+   */
   getHistory(mode){
     let detail = this.$data.detail;
     let history = detail.history;
@@ -308,7 +345,10 @@ export default class Message extends Component {
         });
     })
   }
-  
+  /**
+   * 选择话术
+   * @func
+   */
   selectTalk(){
     this.setState(prevProps => {
       prevProps.modal.talk.isOpen = true;
@@ -393,3 +433,4 @@ export default class Message extends Component {
     )
   }
 }
+export default Message

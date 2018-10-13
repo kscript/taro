@@ -4,10 +4,20 @@
       "dictionaries": ["jsdoc","closure"]
   },
   "source": {
+      "include": [],
+      "exclude": [".temp", "dist", "node_modules","out"],
       "includePattern": ".+\\.js(doc)?$",
-      "excludePattern": "(^_|\\/_|\\\\_|.temp|dist|node_modules|out)"
+      "excludePattern": "(^|\\/|\\\\)_"
   },
-  "plugins": [],
+  "opts": {
+    "_template": "templates/default", 
+    "template": "./node_modules/minami",
+    "encoding": "utf8",
+    "destination": "./out/",
+    "recurse": true,
+    "_tutorials": "path/to/tutorials"
+  },
+  "plugins": ["plugins/markdown"],
   "templates": {
       "cleverLinks": false,
       "monospaceLinks": false
