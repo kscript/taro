@@ -3,9 +3,8 @@ import { View } from '@tarojs/components'
 import { AtInput, AtForm, AtButton, AtToast, AtList, AtListItem } from "taro-ui"
 import { connect } from '@tarojs/redux'
 import { store } from '../../redux'
-import { login } from '../../redux/actions/sdk'
-import { dataMapState, setActions} from '../../utils'
-import { getSessionList, sessions, detail, addEventListener } from '../../redux/actions/sdk'
+import { dataMapState, setActions } from '../../utils'
+import { getSessionList, sessions, sessionsItem, detail, addEventListener, login, sendMsgReceipt} from '../../redux/actions/sdk'
 
 import './index.scss'
 @connect(({ sdk }) => ({
@@ -18,11 +17,20 @@ import './index.scss'
     sessions: option => {
       return dispatch(sessions(option))
     },
+    sessionsItem: option => {
+      return dispatch(sessionsItem(option))
+    },
     addEventListener: option => {
       return dispatch(addEventListener(option))
     },
     detail: option => {
       return dispatch(detail(option))
+    },
+    login: option => {
+      return dispatch(login(option))
+    },
+    sendMsgReceipt: option => {
+      return dispatch(sendMsgReceipt(option))
     }
   }
 })
@@ -257,9 +265,19 @@ class Index extends Component {
    * @param to {string} 选中的账号
    */
   itemClick(to){
-    to && Taro.navigateTo({
-      url: '/pages/message/detail?to=' + to
-    });
+    // 发送消息回执
+    to && this.props.sendMsgReceipt(this.$data.sessions[to].lastMsg).then(data => {
+      let obj = this.$data.sessions[to];
+      obj.msgReceipt = data.msgReceipt;
+      // 缓存消息回执到会话散列
+      this.props.sessionsItem({
+        key: to,
+        value: obj
+      });
+      Taro.navigateTo({
+        url: '/pages/message/detail?to=' + to
+      });
+    })
   }
   render () {
     return (

@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Image, ScrollView } from '@tarojs/components'
-import { AtGrid, AtButton, AtInput, AtForm, AtIcon, AtModal} from 'taro-ui'
+import { View, Text, Image, ScrollView, Button } from '@tarojs/components'
+import { AtGrid, AtButton, AtInput, AtForm, AtIcon, AtModal, AtModalContent, AtModalHeader, AtModalAction } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import { dataMapState, setActions} from '../../utils'
 import List from './list'
@@ -74,6 +74,10 @@ class Message extends Component {
           isOpen: false
         }
       },
+      talk: [{
+        id: 1,
+        text: '你好'
+      }],
       sessions: {},
       newSessions: {},
       scrollTop: 0,
@@ -371,20 +375,47 @@ class Message extends Component {
       return prevProps
     })
   }
+  talkClick(current){
+    this.setState(prevProps => {
+      prevProps.messageText += current.text;
+      return prevProps;
+    }, () => {
+      this.modalClose()
+    })
+  }
   onClick(){
     console.log(this, 111)
+  }
+  modalClose(){
+    this.setState(prevProps => {
+      prevProps.modal.talk.isOpen = false;
+      return prevProps;
+    })
   }
   render () {
     return (
       <View className='detail'>
         <AtModal
-          onClick={this.onClick}
+          onClick={this.onClick.bind(this)}
           isOpened={this.state.modal.talk.isOpen}
-          title='常用语'
-          content='欢迎加入京东凹凸实验室\n\r欢迎加入京东凹凸实验室'
-        />
+        >
+        <AtModalHeader>常用语</AtModalHeader>
+          <AtModalContent>
+            <View className="talk-list">
+              {
+                this.state.talk.map((item, index) => {
+                  return <View onClick={this.talkClick.bind(this, item)} key={index}>{item.text}</View>
+                })
+              }
+            </View>
+          </AtModalContent>
+          <AtModalAction>
+            <Button onClick={this.modalClose.bind(this)}>关闭</Button>
+            {/* <Button>确定</Button> */}
+          </AtModalAction>
+        </AtModal>
         <View className="grid-box">
-          <AtGrid data={this.state.grid} hasBorder={false} columnNum={4} onClick={this.gridClick} />
+          <AtGrid data={this.state.grid} hasBorder={false} columnNum={4} onClick={this.gridClick.bind(this)} />
         </View>
         <ScrollView
           ref="scrollView"
@@ -420,8 +451,8 @@ class Message extends Component {
             type='text'
             placeholder='新消息'
             value={this.state.messageText}
-            onChange={this.inputChange}
-            onConfirm={this.sendMessage}
+            onChange={this.inputChange.bind(this)}
+            onConfirm={this.sendMessage.bind(this)}
           >
             <View className="prefix-box">
               <AtButton

@@ -2,6 +2,7 @@
 import * as config from '../../constants';
 import Taro from '@tarojs/taro';
 import {NIM, SESSION} from '../../utils'
+
 export const getHistory = function (option){
   return dispatch => {
     return NIM().then(nim => {
@@ -23,33 +24,6 @@ export const getHistory = function (option){
                 }
             });
         })
-    })
-  }
-}
-
-// 异步的action
-export const login = function  (option = {}) {
-  return dispatch => {
-    option.url = config.baseUrl + option.url;
-    // return Taro.request(option).then(response => {
-    return new Promise(resolve => resolve()).then(data => {
-      return {
-        data: {
-          code: 200,
-          message: 'ok',
-          data: {
-            token: "e5a8573ad3f165423f66dea2a2f29237",
-            appKey: "9877e7b70f30866c74e409a5ea60373d"
-          }
-        }
-      }
-    })
-    .then(response => {
-      dispatch(account(option.data.account));
-      dispatch(token(response.data.data.token));
-      dispatch(appKey(response.data.data.appKey));
-      dispatch(isLogin(1));
-      return NIM();
     })
   }
 }
@@ -177,12 +151,26 @@ export const addEventListener= function (){
     })
   }
 }
+export const sendMsgReceipt = function(msg = {}) {
+  return dispatch => {
+    return new Promise((resolve, reject) => {
+      NIM().then(nim => {
+        nim.sendMsgReceipt({
+          msg: msg,
+          done: (err, data) => {
+              err ? reject(err) : resolve(data)
+          },
+        });
+      })
+    })
+  }
+}
 
 export default {
   getHistory,
-  login,
   getSessionList,
   sendMessage,
   onmessage,
+  sendMsgReceipt,
   addEventListener
 }
