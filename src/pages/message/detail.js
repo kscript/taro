@@ -4,7 +4,7 @@ import { AtGrid, AtButton, AtInput, AtForm, AtIcon, AtModal} from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import { dataMapState, setActions} from '../../utils'
 import List from './list'
-import { getSessionList, getHistory, sendMessage, detail, sessionsItem} from '../../redux/actions/sdk'
+import { getSessionList, getHistory, sendMessage, detail, sessionsItem , emoji} from '../../redux/actions/sdk'
 
 import './detail.scss'
 
@@ -26,6 +26,9 @@ import './detail.scss'
     },
     sessionsItem: option => {
       return dispatch(sessionsItem(option))
+    },
+    emoji: option => {
+      return dispatch(emoji(option))
     }
   }
 })
@@ -39,6 +42,7 @@ class Message extends Component {
    */
   constructor() {
     super(...arguments)
+    console.log(this)
     this.$data = {
       sending: false, //发送消息状态
       scrollTop: 0,
@@ -367,10 +371,14 @@ class Message extends Component {
       return prevProps
     })
   }
+  onClick(){
+    console.log(this, 111)
+  }
   render () {
     return (
       <View className='detail'>
         <AtModal
+          onClick={this.onClick}
           isOpened={this.state.modal.talk.isOpen}
           title='常用语'
           content='欢迎加入京东凹凸实验室\n\r欢迎加入京东凹凸实验室'

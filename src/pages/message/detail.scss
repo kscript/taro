@@ -40,7 +40,7 @@ $skin: #62d5c8;
     .at-form{
       // position: relative;
       height: $editorH;
-      padding-left: 160px;
+      padding-left: 150px;
       padding-right: 0px;
       .prefix-box{
         position: absolute;
@@ -53,7 +53,12 @@ $skin: #62d5c8;
           background-color: $skin;
           border-color: $skin;
           font-size: 26px;
+          padding: 4px 10px;
+          min-width: 40px;
+          height: 60px;
+          line-height: 48px;
           .at-button__text{
+            padding: 0;
             color: #fff;
           }
         }
@@ -68,6 +73,7 @@ $skin: #62d5c8;
         }
       }
       .at-input{
+        font-size: 14px;
         padding: 0;
         border: none;
       }
