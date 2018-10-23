@@ -5,22 +5,26 @@ import {NIM, SESSION} from '../../utils'
 // export * from './func.js';
 import {
   getHistory,
+  getTalks,
   // login,
   getSessionList,
   sendMessage,
   onmessage,
   sendMsgReceipt,
-  addEventListener
+  addEventListener,
+  getEmoji
 } from './func.js';
 
 export {
   getHistory,
+  getTalks,
   // login,
   getSessionList,
   sendMessage,
   onmessage,
   sendMsgReceipt,
-  addEventListener
+  addEventListener,
+  getEmoji
 }
 export const account = val => {
     return {

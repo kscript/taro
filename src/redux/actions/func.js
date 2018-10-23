@@ -27,6 +27,76 @@ export const getHistory = function (option){
     })
   }
 }
+export const getTalks = function (option){
+  return dispatch => {
+    // 在预览小程序时使用
+    // 前端mock数据
+    return new Promise(resolve => resolve()).then(data => {
+      return {
+        data: {
+          code: 200,
+          message: 'ok',
+          data: [
+            {
+              id: 1,
+              text: '你好'
+            },
+            {
+              id: 2,
+              text: '我可以去贵公司面试吗？'
+            },
+            {
+              id: 3,
+              text: '我可以把我的简历发给您看看吗？'
+            },
+            {
+              id: 4,
+              text: '对不起，我觉得该职位不太适合我，祝您早日找到满意的工作人选'
+            }
+          ]
+        }
+      }
+    });
+    // 后端mock数据
+    // return Taro.request({
+    //   url: config.baseUrl + 'talks',
+    //   method: 'GET'
+    // })
+  }
+}
+export const getEmoji = function (option){
+  return dispatch => {
+    // 在预览小程序时使用
+    // 前端mock数据
+    // return new Promise(resolve => resolve()).then(data => {
+    //   return {
+    //     data: {
+    //       code: 200,
+    //       message: 'ok',
+    //       data:{
+    //         default:{
+    //           label: '默认',
+    //           list:[
+    //             {"phrase":"[广告]","type":"face","url":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/60/ad_new0902_org.gif","hot":true,"common":false,"category":"","icon":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/60/ad_new0902_thumb.gif","value":"[广告]","picid":""},
+    //             {"phrase":"[doge]","type":"face","url":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/b6/doge_org.gif","hot":true,"common":false,"category":"","icon":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/b6/doge_thumb.gif","value":"[doge]","picid":""},
+    //             {"phrase":"[喵喵]","type":"face","url":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/4a/mm_org.gif","hot":true,"common":false,"category":"","icon":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/4a/mm_thumb.gif","value":"[喵喵]","picid":""},
+    //             {"phrase":"[二哈]","type":"face","url":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/74/moren_hashiqi_org.png","hot":true,"common":false,"category":"","icon":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/74/moren_hashiqi_thumb.png","value":"[二哈]","picid":""},
+    //             {"phrase":"[神奇女侠]","type":"face","url":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/5a/yunying_zylmshenqi_org.png","hot":true,"common":false,"category":"","icon":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/5a/yunying_zylmshenqi_thumb.png","value":"[神奇女侠]","picid":""},
+    //             {"phrase":"[蝙蝠侠]","type":"face","url":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/5b/yunying_zylmbianfuxia_org.png","hot":true,"common":false,"category":"","icon":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/5b/yunying_zylmbianfuxia_thumb.png","value":"[蝙蝠侠]","picid":""},
+    //             {"phrase":"[笑cry]","type":"face","url":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/34/xiaoku_org.gif","hot":true,"common":false,"category":"","icon":"//img.t.sinajs.cn/t4/appstyle/expression/ext/normal/34/xiaoku_thumb.gif","value":"[笑cry]","picid":""},
+    //           ]
+    //         }
+    //       }
+    //     }
+    //   }
+    // });
+    // // 后端mock数据
+    return Taro.request({
+      url: config.baseUrl + 'emoji',
+      method: 'GET'
+    })
+  }
+}
 
 export const getSessionList = function (option = {}) {
   return dispatch => {
@@ -168,9 +238,11 @@ export const sendMsgReceipt = function(msg = {}) {
 
 export default {
   getHistory,
+  getTalks,
   getSessionList,
   sendMessage,
   onmessage,
   sendMsgReceipt,
-  addEventListener
+  addEventListener,
+  getEmoji
 }

@@ -1,6 +1,7 @@
 $gridH: 100px;
 $editorH: 88px;
 $skin: #62d5c8;
+$prefW: 100px;
 .detail{
   position: relative;
   // padding-top: $gridH;
@@ -9,6 +10,16 @@ $skin: #62d5c8;
   flex-direction: column;
   overflow: hidden;
   height: 100vh;
+  .emoji-list{
+    padding: 10px;
+    .emoji{
+      border: 1PX solid #f1f1f1;
+      margin: -3PX -1PX;
+      padding: 8px;
+      width: 44px;
+      height: 44px;
+    }
+  }
   .grid-box{
     // position: fixed;
     top: 0;
@@ -40,14 +51,14 @@ $skin: #62d5c8;
     .at-form{
       // position: relative;
       height: $editorH;
-      padding-left: 150px;
+      padding-left: $prefW + 30px;
       padding-right: 0px;
       .prefix-box{
         position: absolute;
         top: 14px;
         left: 0px;
         margin-top: 4px;
-        width: 120px;
+        width: $prefW;
         .at-button{
           color: #fff;
           background-color: $skin;
@@ -55,9 +66,11 @@ $skin: #62d5c8;
           font-size: 26px;
           padding: 4px 10px;
           min-width: 40px;
-          height: 60px;
-          line-height: 48px;
+          height: 50px;
+          line-height: 50px;
+          border-radius: 4px;
           .at-button__text{
+            font-size: 26px;
             padding: 0;
             color: #fff;
           }
@@ -68,14 +81,53 @@ $skin: #62d5c8;
         box-sizing: border-box;
         height: $editorH;
         line-height: $editorH - 4;
+        .icon-box{
+          width: 68px;
+          padding: 0 6px;
+          display: inline-block;
+        }
         .iconfont{
+          vertical-align: middle;
+          color:#888;
+          width: 56px;
+          height: 60px;
+          padding: 0 10px;
           margin-top: 4px;
+          line-height: 40px;
+          font-size: 26px;
+        }
+        .btn-send{
+          position:relative;
+          top: -10px;
+          left: auto;
+          vertical-align: middle;
+          min-width: 44px;
+          height: 50px;
+          padding: 0 6px;
+          line-height: 46px;
+          font-size: 26px;
+          background-color: $skin;
+          border-color: $skin;
+          &:hover, &:active{
+            background-color: $skin * 1.02;
+          }
+          .at-button__text{
+            color: #fff;
+            padding: 0;
+            font-size: 26px;
+          }
         }
       }
       .at-input{
         font-size: 14px;
         padding: 0;
         border: none;
+        // .at-input__input{
+        //   border-bottom: 1px solid transparent;
+        //   &:active, &:focus{
+        //     border-bottom: 2px solid $skin * .9;
+        //   }
+        // }
       }
     }
   }
@@ -106,6 +158,29 @@ $skin: #62d5c8;
       top: 0;
       left: 0;
       width: 100%;
+    }
+  }
+  .at-action-sheet{
+    .list{
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 270px;
+      &.no-extra{
+        .at-list__item{
+          margin-left: -20px;
+        }
+        .at-list__item-content{
+          margin: 0 20px;
+        }
+        .item-extra{
+          display: none;
+        }
+      }
+    }
+  }
+  .modal-base{
+    .at-modal-content{
+      min-height: 50px;
     }
   }
 }

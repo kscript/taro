@@ -50,6 +50,7 @@ class Index extends Component {
         account: '',
         password: ''
       },
+      selectSession: false,
       sessions: {}, // 会话信息散列
       sessionList: [], // 会话信息数组
       roamingList: [], // 漫游会话临时数组
@@ -191,15 +192,27 @@ class Index extends Component {
             unread: 1,
             scene: "p2p",
             to: account,
+            // 收到的最后一条消息 只存放接收
             lastMsg: data,
+            // // 发送的消息
+            // lastMsgOut: {},
+            // // 最后一条对话消息 不区分来源
+            // lastMsgAll: data,
             msgs: [data],
             msgReceiptTime: 0,
             updateTime: data.time,
         };
     } else {
-        list.splice(index, 1)[0];
-        sessions[account].lastMsg = data;
+      list.splice(index, 1)[0];
+      sessions[account].lastMsg = data;
+      // sessions[account].lastMsgAll = data;
     }
+    // // 只有在接收消息时才更新
+    // if (data.flow === 'in') {
+    //   sessions[account].lastMsg = data;
+    // } else {
+    //   sessions[account].lastMsgOut = data;
+    // }
     // 将当前会话移动到会话列表顶部
     list.unshift(sessions[account]);
     return list;
@@ -256,28 +269,32 @@ class Index extends Component {
     return sessionList;
   }
 
-  getProfile(account){
-    return 
-  }
   /**
    * 用户点击某个会话
    * @func
    * @param to {string} 选中的账号
    */
   itemClick(to){
-    // 发送消息回执
-    to && this.props.sendMsgReceipt(this.$data.sessions[to].lastMsg).then(data => {
+    if(!this.$data.selectSession && to){
+      this.$data.selectSession = true;
       let obj = this.$data.sessions[to];
-      obj.msgReceipt = data.msgReceipt;
-      // 缓存消息回执到会话散列
-      this.props.sessionsItem({
-        key: to,
-        value: obj
-      });
-      Taro.navigateTo({
-        url: '/pages/message/detail?to=' + to
-      });
-    })
+      // 发送消息回执
+      this.props.sendMsgReceipt(this.$data.sessions[to].lastMsg).then(data => {
+        console.log(data);
+        if(data){
+          obj.msgReceipt = data.msgReceipt;
+          // 缓存消息回执到会话散列
+          this.props.sessionsItem({
+            key: to,
+            value: obj
+          });
+        }
+        this.$data.selectSession = false;
+        Taro.navigateTo({
+          url: '/pages/message/detail?to=' + to
+        });
+      })
+    }
   }
   render () {
     return (

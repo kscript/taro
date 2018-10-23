@@ -42,7 +42,7 @@ export const NIM = function(option){
             config['needMsgReceipt'] = true;
             config['syncSessionUnread'] = true;
             config['syncRoamingMsgs'] = true;
-
+            console.log(JSON.parse(JSON.stringify(config)))
             nimInstance = SDK.NIM.getInstance(config);
             console.log(nimInstance);
         } else {
