@@ -7,5 +7,5 @@ server(
     headConfig: null,
     crossDomain: true
   },
-  3000
+  3001
 );

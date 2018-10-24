@@ -8,6 +8,8 @@ const INITIAL_STATE_SDK = loadState({
   profile: {},
   profiles: {},
   sessions: {},
+  emoji: null,
+  talk: null,
   isLogin: 0
 })
 

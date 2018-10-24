@@ -18,7 +18,16 @@ import {
 import { connect } from '@tarojs/redux'
 import { dataMapState, setActions} from '../../utils'
 import List from './list'
-import { getSessionList, getHistory, getTalks, sendMessage, detail, sessionsItem , emoji, getEmoji} from '../../redux/actions/sdk'
+import {
+  getSessionList,
+  getHistory,
+  getTalks,
+  sendMessage,
+  detail,
+  sessionsItem,
+  emoji,
+  getEmoji
+} from '../../redux/actions/sdk'
 
 import './detail.scss'
 
@@ -148,43 +157,8 @@ class Message extends Component {
     let sessions = (this.props.sdk.sessions || {})[to] || {};
     let detail = this.$data.detail;
     detail.sessions = sessions;
-    this.props.getEmoji().then(response => {
-      this.setState(prevProps => {
-        let result = response.data.data;
-        let emoji = {};
-        let maps = {}
-        for(let key in result){
-          if(result[key].list){
-            maps[key] = {
-              label: result[key].label,
-              list: []
-            };
-            (result[key].list || []).forEach(item => {
-              emoji[item.value] = item;
-              maps[key].list.push({
-                value: item.value,
-                src: item.icon
-              });
-            });
-          }
-        }
-        return {
-          emotions: {
-            isOpened: prevProps.emotions.isOpened,
-            maps,
-            emoji
-          }
-        }
-      })
-    })
-    this.props.getTalks().then(response => {
-      this.setState(prevProps => {
-        prevProps.talk.list = response.data.data
-        return {
-          talk: prevProps.talk
-        }
-      })
-    })
+    this.emojiInit();
+    this.talkInit();
     if (!this.$data.detail.init) {
       if (sessions && sessions.history) {
         detail.history = sessions.history;
@@ -220,6 +194,45 @@ class Message extends Component {
   dataMapState (key, val, fn = () => {}){
     dataMapState.call(this, key, val, fn);
   }
+
+  /**
+   * 加载表情信息
+   * @func
+   */
+  emojiInit(){
+    new Promise(resolve => {
+      resolve(this.props.sdk.emoji || this.props.getEmoji())
+    }).then(emoji => {
+      this.setState(prevProps => {
+        let isOpened = prevProps.emotions.isOpened;
+        let {...emotions} = {isOpened, ...emoji};
+        return {
+          emotions
+        }
+      });
+    });
+  }
+  /**
+   * 加载常用语信息
+   * @func
+   */
+  talkInit(){
+    new Promise(resolve => {
+      resolve(this.props.sdk.talk || this.props.getTalks())
+    }).then(talk => {
+      this.setState(prevProps => {
+        prevProps.talk.list = talk
+        return {
+          talk: prevProps.talk
+        }
+      })
+    });
+  }
+  /**
+   * 对会话消息进行加工
+   * @func
+   * @param {object} session 会话对象
+   */
   formatSessionMsgs(session){
     (session.msgs || []).forEach(item => {
       if(!item.nodes){
@@ -228,6 +241,11 @@ class Message extends Component {
     });
     return session;
   }
+  /**
+   * 分离会话消息中的 表情 文本
+   * @func
+   * @param {string} text 消息文本
+   */
   formatSessionText (text) {
     let regx = /([\s\S]|)(\[(.*?)\])/g;
     let emotions = (this.state.emotions || {}).emoji;
@@ -282,45 +300,14 @@ class Message extends Component {
    * @param {object} data 消息
    */
   onupdatesession(data){
-    if (data.to === this.$router.params.to) {
-      this.$data.sessions.msgReceipt.time = data.msgReceiptTime
+    let detail = this.$data.detail;
+    if (data.to === this.$router.params.to && detail.sessions.msgReceipt && data.msgReceiptTime) {
+      detail.sessions.msgReceipt.time = data.msgReceiptTime;
     }
-    this.formatSession('onupdatesession', data);
-    this.dataMapState(['sessions','sessionList']);
-  }
-  /**
-   * 格式化会话信息
-   * @func
-   * @param type {string} 要格式化的会话类型
-   * @param data {object} 要格式化的消息
-   */
-  formatSession(type, data){
-    if(!(data instanceof Object))return ;
-    let sessions = this.$data.sessions;
-    let sessionList = this.$data.sessionList;
-    let list = data instanceof Array ? data : [data];
-    list.forEach(item => {
-      if(!sessions[item.to]){
-        sessions[item.to] = item;
-        sessionList.push(item);
-
-        if(type === 'onroamingmsgs'){
-          sessionList = sessionList.sort((a, b) => {
-            return sessionList[a].lastMsg.time > sessionList[b].lastMsg.time
-          });
-        }
-      } else {
-
-        let account = item.to;
-        sessions[account] = item;
-        sessionList.forEach((session, index) => {
-          if(session.to === account){
-            sessionList[index] = item;
-          }
-        });
-      }
-    })
-    return sessionList;
+    this.setState({
+      sessions: detail.sessions,
+      sessionList: detail.sessionList
+    });
   }
   /**
    * 发送消息
@@ -343,7 +330,8 @@ class Message extends Component {
       to,
       text,
       scene: 'p2p',
-      needMsgReceipt: true
+      needMsgReceipt: true,
+      isRoamingable: true
     }).then(data => {
       this.addMessage(data);
     })

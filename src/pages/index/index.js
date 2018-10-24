@@ -4,7 +4,15 @@ import { AtInput, AtForm, AtButton, AtToast, AtList, AtListItem } from "taro-ui"
 import { connect } from '@tarojs/redux'
 import { store } from '../../redux'
 import { dataMapState, setActions } from '../../utils'
-import { getSessionList, sessions, sessionsItem, detail, addEventListener, login, sendMsgReceipt} from '../../redux/actions/sdk'
+import {
+  getSessionList,
+  sessions,
+  sessionsItem,
+  detail,
+  addEventListener,
+  login,
+  sendMsgReceipt
+} from '../../redux/actions/sdk'
 
 import './index.scss'
 @connect(({ sdk }) => ({
@@ -252,20 +260,23 @@ class Index extends Component {
 
         if(type === 'onroamingmsgs'){
           sessionList = sessionList.sort((a, b) => {
-            return sessionList[a].lastMsg.time > sessionList[b].lastMsg.time
+            return b.lastMsg.time - a.lastMsg.time
           });
         }
       } else {
 
         let account = item.to;
+        let itemIndex = -1;
         sessions[account] = item;
         sessionList.forEach((session, index) => {
           if(session.to === account){
-            sessionList[index] = item;
+            itemIndex = index;
           }
         });
+        sessionList = [item].concat(sessionList.slice(0, itemIndex), sessionList.slice(itemIndex + 1));
       }
     })
+    this.$data.sessionList = sessionList;
     return sessionList;
   }
 
